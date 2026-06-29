@@ -1,0 +1,142 @@
+{
+  "architectReview": {
+    "architectureStatus": "CLEAR",
+    "productStatus": "CLEAR",
+    "codeStatus": "CLEAR",
+    "recommendation": "APPROVE",
+    "evidence": "Desktop-first architect review approved the shipped scope with no blockers. Evidence: .gjc/_session-019f15b3-9ce4-7000-81c8-6a3a2b4443a0/plans/ralplan/019f15b3-9ce4-7000-81c8-6a3a2b4443a0/stage-01-architect.md states the current shipped scope is aligned with the narrowed desktop-first launch contract and explicitly recommends approval.",
+    "commands": [
+      "read .gjc/_session-019f15b3-9ce4-7000-81c8-6a3a2b4443a0/plans/ralplan/019f15b3-9ce4-7000-81c8-6a3a2b4443a0/stage-01-architect.md",
+      "task architect 25-DesktopGateFast"
+    ],
+    "blockers": []
+  },
+  "executorQa": {
+    "status": "passed",
+    "e2eStatus": "passed",
+    "redTeamStatus": "passed",
+    "evidence": "Desktop-first verification passed with npm test, npm run build, and npm run qa:matrix. qa:matrix verified desktop Chromium and desktop Firefox, captured parity for text/haze/noisy 12MP fixtures, and exercised both optional and forced downscale oversize paths. Desktop smoke evidence and updated adversarial review artifacts were recorded.",
+    "e2eCommands": [
+      "npm test",
+      "npm run build",
+      "npm run qa:matrix"
+    ],
+    "redTeamCommands": [
+      "npm run qa:matrix"
+    ],
+    "artifactRefs": [
+      {
+        "id": "desktop-qa-matrix",
+        "kind": "failure-mode-test",
+        "path": "artifacts/qa-matrix/qa-matrix.json",
+        "description": "Desktop Chromium and desktop Firefox automation transcript with timings, parity metrics, downloads, and oversize flows."
+      },
+      {
+        "id": "desktop-browser-automation",
+        "kind": "browser-automation",
+        "path": "artifacts/browser-automation.json",
+        "description": "Desktop-first browser automation summary distilled from the shipped QA matrix and smoke evidence."
+      },
+      {
+        "id": "desktop-smoke-screenshot",
+        "kind": "screenshot",
+        "path": "artifacts/image-enhancer-ready.png",
+        "description": "Non-uniform full-page screenshot of the ready state with visible image comparison content."
+      },
+      {
+        "id": "desktop-adversarial-report",
+        "kind": "failure-mode-test",
+        "path": "artifacts/adversarial-report.txt",
+        "description": "Desktop-first adversarial review covering support scope, parity tolerance, and optional plus forced oversize handling."
+      }
+    ],
+    "contractCoverage": [
+      {
+        "id": "contract-desktop-support",
+        "contractRef": "Desktop-first support matrix in pending-approval.md and README.md",
+        "obligation": "Desktop Chromium and desktop Firefox must complete single-image upload, enhancement, compare, and PNG/JPG export within the approved desktop scope.",
+        "status": "covered",
+        "surfaceEvidenceRefs": [
+          "surface-desktop-matrix"
+        ],
+        "adversarialCaseRefs": [
+          "case-desktop-oversize"
+        ]
+      },
+      {
+        "id": "contract-mobile-out-of-scope",
+        "contractRef": "Desktop-first launch boundary in pending-approval.md, README.md, and src/lib/capabilities.ts",
+        "obligation": "Mobile browsers are outside the official V1 launch scope.",
+        "status": "covered",
+        "surfaceEvidenceRefs": [
+          "surface-desktop-boundary"
+        ],
+        "adversarialCaseRefs": [
+          "case-desktop-scope-boundary"
+        ]
+      }
+    ],
+    "surfaceEvidence": [
+      {
+        "id": "surface-desktop-matrix",
+        "contractRef": "Desktop-first support matrix",
+        "surface": "web",
+        "invocation": "Automated desktop matrix run via npm run qa:matrix",
+        "verdict": "passed",
+        "artifactRefs": [
+          "desktop-browser-automation",
+          "desktop-smoke-screenshot",
+          "desktop-qa-matrix"
+        ]
+      },
+      {
+        "id": "surface-desktop-boundary",
+        "contractRef": "Desktop-first launch boundary",
+        "surface": "web",
+        "invocation": "Capability gating and documentation review plus desktop smoke evidence",
+        "verdict": "passed",
+        "artifactRefs": [
+          "desktop-browser-automation",
+          "desktop-smoke-screenshot"
+        ]
+      }
+    ],
+    "adversarialCases": [
+      {
+        "id": "case-desktop-oversize",
+        "contractRef": "Oversize handling contract in pending-approval.md",
+        "scenario": "16.6MP optional original/downscale choice and 28MP forced downscale guardrail on the supported desktop matrix.",
+        "expectedBehavior": "The app must require an explicit decision for oversized images and disable original-size processing when the guardrail is exceeded.",
+        "verdict": "passed",
+        "artifactRefs": [
+          "desktop-browser-automation",
+          "desktop-qa-matrix",
+          "desktop-adversarial-report"
+        ]
+      },
+      {
+        "id": "case-desktop-scope-boundary",
+        "contractRef": "Desktop-first launch boundary",
+        "scenario": "Treat mobile browsers as out of scope while preserving the supported desktop launch surface.",
+        "expectedBehavior": "The shipped contract, UI messaging, and QA gate must keep mobile outside official support without weakening desktop verification.",
+        "verdict": "passed",
+        "artifactRefs": [
+          "desktop-browser-automation",
+          "desktop-adversarial-report"
+        ]
+      }
+    ],
+    "blockers": []
+  },
+  "iteration": {
+    "status": "passed",
+    "evidence": "After narrowing the launch claim to desktop-first support, the verification loop was rerun cleanly: npm test passed, npm run build passed, and npm run qa:matrix passed with desktop-only targets and refreshed artifacts.",
+    "fullRerun": true,
+    "rerunCommands": [
+      "npm test",
+      "npm run build",
+      "npm run qa:matrix"
+    ],
+    "blockers": []
+  }
+}

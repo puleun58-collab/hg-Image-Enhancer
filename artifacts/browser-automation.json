@@ -1,0 +1,226 @@
+{
+  "schemaVersion": 1,
+  "kind": "browser-automation",
+  "surface": "web",
+  "launchScope": "desktop-first",
+  "appUrl": "http://127.0.0.1:4674/",
+  "startedAt": "2026-06-29T23:32:29.699Z",
+  "scenarios": [
+    {
+      "id": "desktop-text-heavy-upload",
+      "actions": [
+        {
+          "atMs": 9559,
+          "type": "upload",
+          "selector": "input[type=file]",
+          "file": "fixtures/text-heavy-12mp.jpg",
+          "timestamp": "2026-06-29T23:32:39.258Z"
+        }
+      ],
+      "observed": {
+        "phase": "ready",
+        "phaseText": "준비 완료",
+        "status": "원본 해상도로 준비되었습니다: 4,032 × 3,024 px.",
+        "renderMeta": "원본 해상도 저장4,032 × 3,024 px워커 처리8046 ms",
+        "sourceMeta": [
+          "text-heavy-12mp.jpg",
+          "12.2 MP",
+          "4,032 × 3,024 px",
+          "46.5 MB"
+        ],
+        "promptTitle": null,
+        "promptText": null,
+        "keepOriginalDisabled": null
+      }
+    },
+    {
+      "id": "desktop-export-png-click",
+      "actions": [
+        {
+          "atMs": 11056,
+          "type": "click",
+          "selector": "input[name=\"export-format\"][value=\"image/png\"]",
+          "timestamp": "2026-06-29T23:32:40.755Z"
+        },
+        {
+          "atMs": 11056,
+          "type": "click",
+          "selector": "[data-action=\"export-image\"]",
+          "timestamp": "2026-06-29T23:32:40.755Z"
+        }
+      ],
+      "observed": {
+        "phase": "ready",
+        "phaseText": "준비 완료",
+        "status": "원본 해상도로 준비되었습니다: 4,032 × 3,024 px.",
+        "renderMeta": "원본 해상도 저장4,032 × 3,024 px워커 처리8046 ms",
+        "sourceMeta": [
+          "text-heavy-12mp.jpg",
+          "12.2 MP",
+          "4,032 × 3,024 px",
+          "46.5 MB"
+        ],
+        "promptTitle": null,
+        "promptText": null,
+        "keepOriginalDisabled": null
+      }
+    },
+    {
+      "id": "desktop-oversize-optional",
+      "actions": [
+        {
+          "atMs": 12359,
+          "type": "upload",
+          "selector": "input[type=file]",
+          "file": "fixtures/oversize.png",
+          "timestamp": "2026-06-29T23:32:42.058Z"
+        }
+      ],
+      "observed": {
+        "phase": "awaiting-oversize-decision",
+        "phaseText": "대용량 결정 대기",
+        "status": "현재 저장 형식은 PNG입니다. JPG는 고정 품질 0.92를 사용합니다.",
+        "renderMeta": null,
+        "sourceMeta": [],
+        "promptTitle": "대용량 이미지 선택 필요",
+        "promptText": "원본 해상도는 16.6MP입니다. 현재 기기에서는 원본 크기를 유지할 수도 있고, 더 빠르고 안정적인 처리를 위해 16.0MP V1 기준으로 축소할 수도 있습니다.",
+        "keepOriginalDisabled": false
+      }
+    },
+    {
+      "id": "desktop-oversize-optional-downscale",
+      "actions": [
+        {
+          "atMs": 21352,
+          "type": "click",
+          "selector": "[data-action=\"downscale\"]",
+          "timestamp": "2026-06-29T23:32:51.051Z"
+        }
+      ],
+      "observed": {
+        "phase": "ready",
+        "phaseText": "준비 완료",
+        "status": "축소 해상도 내보내기로 준비되었습니다: 5,099 × 3,138 px.",
+        "renderMeta": "축소 해상도 저장5,099 × 3,138 px워커 처리8795 ms",
+        "sourceMeta": [
+          "oversize.png",
+          "16.6 MP",
+          "5,200 × 3,200 px",
+          "63.5 MB"
+        ],
+        "promptTitle": null,
+        "promptText": null,
+        "keepOriginalDisabled": null
+      }
+    },
+    {
+      "id": "desktop-oversize-forced",
+      "actions": [
+        {
+          "atMs": 22589,
+          "type": "upload",
+          "selector": "input[type=file]",
+          "file": "fixtures/force-downscale-28mp.jpg",
+          "timestamp": "2026-06-29T23:32:52.288Z"
+        }
+      ],
+      "observed": {
+        "phase": "awaiting-oversize-decision",
+        "phaseText": "대용량 결정 대기",
+        "status": "현재 저장 형식은 PNG입니다. JPG는 고정 품질 0.92를 사용합니다.",
+        "renderMeta": null,
+        "sourceMeta": [],
+        "promptTitle": "대용량 이미지 선택 필요",
+        "promptText": "원본 해상도는 28.0MP이며 현재 메모리 가드레일을 초과합니다. 계속하려면 축소 처리가 필요합니다.",
+        "keepOriginalDisabled": true
+      }
+    },
+    {
+      "id": "desktop-oversize-forced-downscale",
+      "actions": [
+        {
+          "atMs": 32139,
+          "type": "click",
+          "selector": "[data-action=\"downscale\"]",
+          "timestamp": "2026-06-29T23:33:01.838Z"
+        }
+      ],
+      "observed": {
+        "phase": "ready",
+        "phaseText": "준비 완료",
+        "status": "축소 해상도 내보내기로 준비되었습니다: 5,292 × 3,024 px.",
+        "renderMeta": "축소 해상도 저장5,292 × 3,024 px워커 처리9294 ms",
+        "sourceMeta": [
+          "force-downscale-28mp.jpg",
+          "28.0 MP",
+          "7,000 × 4,000 px",
+          "106.8 MB"
+        ],
+        "promptTitle": null,
+        "promptText": null,
+        "keepOriginalDisabled": null
+      }
+    }
+  ],
+  "screenshots": [
+    "artifacts/image-enhancer-ready.png"
+  ],
+  "completedAt": "2026-06-29T23:33:02.196Z",
+  "tool": "browser",
+  "status": "passed",
+  "description": "Desktop-first live browser automation transcript",
+  "actions": [
+    {
+      "atMs": 9559,
+      "type": "upload",
+      "selector": "input[type=file]",
+      "file": "fixtures/text-heavy-12mp.jpg",
+      "scenarioId": "desktop-text-heavy-upload",
+      "timestamp": "2026-06-29T23:32:39.258Z"
+    },
+    {
+      "atMs": 11056,
+      "type": "click",
+      "selector": "input[name=\"export-format\"][value=\"image/png\"]",
+      "scenarioId": "desktop-export-png-click",
+      "timestamp": "2026-06-29T23:32:40.755Z"
+    },
+    {
+      "atMs": 11056,
+      "type": "click",
+      "selector": "[data-action=\"export-image\"]",
+      "scenarioId": "desktop-export-png-click",
+      "timestamp": "2026-06-29T23:32:40.755Z"
+    },
+    {
+      "atMs": 12359,
+      "type": "upload",
+      "selector": "input[type=file]",
+      "file": "fixtures/oversize.png",
+      "scenarioId": "desktop-oversize-optional",
+      "timestamp": "2026-06-29T23:32:42.058Z"
+    },
+    {
+      "atMs": 21352,
+      "type": "click",
+      "selector": "[data-action=\"downscale\"]",
+      "scenarioId": "desktop-oversize-optional-downscale",
+      "timestamp": "2026-06-29T23:32:51.051Z"
+    },
+    {
+      "atMs": 22589,
+      "type": "upload",
+      "selector": "input[type=file]",
+      "file": "fixtures/force-downscale-28mp.jpg",
+      "scenarioId": "desktop-oversize-forced",
+      "timestamp": "2026-06-29T23:32:52.288Z"
+    },
+    {
+      "atMs": 32139,
+      "type": "click",
+      "selector": "[data-action=\"downscale\"]",
+      "scenarioId": "desktop-oversize-forced-downscale",
+      "timestamp": "2026-06-29T23:33:01.838Z"
+    }
+  ]
+}

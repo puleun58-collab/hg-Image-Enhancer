@@ -1,0 +1,481 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #f5f7fb;
+  background:
+    radial-gradient(circle at top, rgba(76, 123, 255, 0.18), transparent 32%),
+    linear-gradient(180deg, #09111f 0%, #060b14 100%);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input,
+fieldset,
+legend {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+img {
+  max-width: 100%;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.app-shell {
+  width: min(1120px, calc(100% - 24px));
+  margin: 0 auto;
+  padding: 24px 0 48px;
+  display: grid;
+  gap: 16px;
+}
+
+.panel {
+  background: rgba(10, 17, 29, 0.86);
+  border: 1px solid rgba(149, 176, 255, 0.18);
+  border-radius: 20px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(16px);
+}
+
+.hero-panel,
+.summary-panel,
+.control-panel,
+.prompt-panel,
+.error-panel,
+.blocked-panel,
+.compare-panel {
+  padding: 20px;
+}
+
+.hero-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: start;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #95b1ff;
+}
+
+.hero-panel h1,
+.summary-panel h2,
+.control-panel h2,
+.prompt-panel h2,
+.error-panel h2,
+.blocked-panel h2,
+.compare-panel h2 {
+  margin: 0;
+  font-size: clamp(1.3rem, 2vw, 2rem);
+}
+
+.hero-copy,
+.summary-header p,
+.upload-row p,
+.prompt-panel p,
+.error-panel p,
+.blocked-panel p,
+.compare-header p,
+.status-row p {
+  margin: 8px 0 0;
+  color: #c9d5f3;
+}
+
+.capability-pill {
+  min-width: 180px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.04);
+  display: grid;
+  gap: 4px;
+}
+
+.capability-pill span {
+  color: #9fb5eb;
+  font-size: 0.88rem;
+}
+
+.capability-pill strong {
+  text-transform: capitalize;
+}
+
+.capability-pill.is-supported {
+  border-color: rgba(88, 224, 161, 0.36);
+}
+
+.capability-pill.is-blocked {
+  border-color: rgba(255, 117, 117, 0.4);
+}
+
+.summary-header,
+.upload-row,
+.compare-header,
+.status-row {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.phase-badge {
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.88rem;
+  text-transform: capitalize;
+  background: rgba(255, 255, 255, 0.06);
+  color: #d7e2ff;
+  white-space: nowrap;
+}
+
+.phase-processing,
+.phase-exporting {
+  background: rgba(76, 123, 255, 0.18);
+}
+
+.phase-ready,
+.phase-idle {
+  background: rgba(88, 224, 161, 0.16);
+}
+
+.phase-awaiting-oversize-decision,
+.phase-error,
+.phase-compatibility-blocked {
+  background: rgba(255, 163, 82, 0.16);
+}
+
+.capability-grid {
+  margin: 18px 0 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.capability-row {
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.capability-row dt {
+  color: #9fb5eb;
+  font-size: 0.88rem;
+}
+
+.capability-row dd {
+  margin: 6px 0 0;
+  font-weight: 600;
+}
+
+.button {
+  appearance: none;
+  border: 1px solid rgba(173, 191, 255, 0.25);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  min-height: 44px;
+  padding: 0 16px;
+  transition: transform 120ms ease, background-color 120ms ease, border-color 120ms ease;
+}
+
+.button:hover:enabled,
+.button:focus-visible:enabled {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(173, 191, 255, 0.45);
+}
+
+.button:active:enabled {
+  transform: translateY(1px);
+}
+
+.button:disabled {
+  opacity: 0.56;
+  cursor: not-allowed;
+}
+
+.button-primary {
+  background: linear-gradient(180deg, #6f92ff 0%, #4c7bff 100%);
+  border-color: transparent;
+  color: #06101f;
+  font-weight: 700;
+}
+
+.control-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(240px, 0.8fr);
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.slider-card,
+.export-card {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(149, 176, 255, 0.12);
+}
+
+.slider-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.slider-card input[type="range"] {
+  width: 100%;
+}
+
+.export-card {
+  min-width: 0;
+}
+
+.export-card legend {
+  padding: 0;
+  font-weight: 600;
+}
+
+.export-card label {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.slider-card small,
+.export-card small {
+  color: #9fb5eb;
+}
+
+.status-row {
+  margin-top: 16px;
+  align-items: flex-start;
+}
+
+.status-row p {
+  margin: 0;
+}
+
+.source-meta,
+.prompt-stats,
+.render-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.source-meta span,
+.prompt-stats span,
+.render-meta span {
+  padding: 8px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #d7e2ff;
+  font-size: 0.9rem;
+}
+
+.prompt-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+}
+.prompt-warning {
+  width: 100%;
+  margin: 0;
+  color: #ffd7a8;
+  font-size: 0.94rem;
+}
+
+.error-panel,
+.blocked-panel,
+.prompt-panel {
+  border-color: rgba(255, 163, 82, 0.28);
+}
+
+.compare-frame {
+  position: relative;
+  margin-top: 18px;
+  min-height: min(72vw, 520px);
+  border-radius: 22px;
+  overflow: hidden;
+  background:
+    linear-gradient(45deg, rgba(255, 255, 255, 0.06) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.06) 75%),
+    linear-gradient(45deg, rgba(255, 255, 255, 0.06) 25%, transparent 25%, transparent 75%, rgba(255, 255, 255, 0.06) 75%),
+    rgba(4, 9, 17, 0.92);
+  background-size: 28px 28px;
+  background-position: 0 0, 14px 14px;
+  touch-action: none;
+  user-select: none;
+}
+
+.compare-frame.is-ready {
+  cursor: ew-resize;
+}
+
+.compare-image,
+.compare-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.compare-image {
+  object-fit: contain;
+}
+
+.compare-overlay {
+  overflow: hidden;
+}
+
+.compare-overlay .compare-image {
+  object-fit: contain;
+}
+
+.compare-handle {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  pointer-events: none;
+}
+
+.compare-handle::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 -1px;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 0 0 1px rgba(6, 16, 31, 0.25);
+}
+
+.compare-handle span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 46px;
+  height: 46px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  background: rgba(6, 16, 31, 0.72);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+}
+
+.compare-handle span::before,
+.compare-handle span::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-top: 2px solid #fff;
+  border-right: 2px solid #fff;
+}
+
+.compare-handle span::before {
+  left: 10px;
+  transform: translateY(-50%) rotate(-135deg);
+}
+
+.compare-handle span::after {
+  right: 10px;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.empty-state {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  text-align: center;
+  color: #c9d5f3;
+}
+
+@media (max-width: 860px) {
+  .hero-panel,
+  .summary-header,
+  .upload-row,
+  .compare-header,
+  .status-row {
+    grid-template-columns: 1fr;
+    display: grid;
+    justify-content: initial;
+  }
+
+  .capability-grid,
+  .control-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .status-row .button,
+  .upload-row .button {
+    width: 100%;
+  }
+
+  .compare-frame {
+    min-height: 54vw;
+  }
+}
+
+@media (max-width: 520px) {
+  .app-shell {
+    width: min(100%, calc(100% - 16px));
+    padding: 16px 0 28px;
+  }
+
+  .hero-panel,
+  .summary-panel,
+  .control-panel,
+  .prompt-panel,
+  .error-panel,
+  .blocked-panel,
+  .compare-panel {
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .compare-frame {
+    min-height: 68vw;
+  }
+}

@@ -1,0 +1,970 @@
+{
+  "url": "http://127.0.0.1:4574",
+  "generatedAt": "2026-06-26T08:19:06.845Z",
+  "targets": [
+    {
+      "id": "desktop-chromium",
+      "status": "passed",
+      "timings": [
+        {
+          "fixture": "text-heavy-12mp.jpg",
+          "previewRuns": [
+            {
+              "iteration": 1,
+              "phase": "ready",
+              "status": "원본 해상도로 준비되었습니다: 4,032 × 3,024 px.",
+              "renderMeta": "원본 해상도 저장4,032 × 3,024 px워커 처리5617 ms",
+              "processingMs": 5617
+            },
+            {
+              "iteration": 2,
+              "phase": "ready",
+              "status": "원본 해상도로 준비되었습니다: 4,032 × 3,024 px.",
+              "renderMeta": "원본 해상도 저장4,032 × 3,024 px워커 처리6736 ms",
+              "processingMs": 6736
+            },
+            {
+              "iteration": 3,
+              "phase": "ready",
+              "status": "원본 해상도로 준비되었습니다: 4,032 × 3,024 px.",
+              "renderMeta": "원본 해상도 저장4,032 × 3,024 px워커 처리6168 ms",
+              "processingMs": 6168
+            }
+          ],
+          "previewMedianMs": 6168,
+          "exportRuns": {
+            "png": [
+              {
+                "format": "PNG",
+                "iteration": 1,
+                "durationMs": 1098,
+                "suggestedFilename": "text-heavy-12mp-보정본.png",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-text-heavy-12mp-png-run1.png"
+              },
+              {
+                "format": "PNG",
+                "iteration": 2,
+                "durationMs": 401,
+                "suggestedFilename": "text-heavy-12mp-보정본.png",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-text-heavy-12mp-png-run2.png"
+              },
+              {
+                "format": "PNG",
+                "iteration": 3,
+                "durationMs": 376,
+                "suggestedFilename": "text-heavy-12mp-보정본.png",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-text-heavy-12mp-png-run3.png"
+              }
+            ],
+            "jpg": [
+              {
+                "format": "JPG",
+                "iteration": 1,
+                "durationMs": 561,
+                "suggestedFilename": "text-heavy-12mp-보정본.jpg",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-text-heavy-12mp-jpg-run1.jpg"
+              },
+              {
+                "format": "JPG",
+                "iteration": 2,
+                "durationMs": 435,
+                "suggestedFilename": "text-heavy-12mp-보정본.jpg",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-text-heavy-12mp-jpg-run2.jpg"
+              },
+              {
+                "format": "JPG",
+                "iteration": 3,
+                "durationMs": 469,
+                "suggestedFilename": "text-heavy-12mp-보정본.jpg",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-text-heavy-12mp-jpg-run3.jpg"
+              }
+            ]
+          },
+          "exportMedianMs": {
+            "png": 401,
+            "jpg": 469
+          }
+        },
+        {
+          "fixture": "haze-heavy-12mp.jpg",
+          "previewRuns": [
+            {
+              "iteration": 1,
+              "phase": "ready",
+              "status": "원본 해상도로 준비되었습니다: 4,032 × 3,024 px.",
+              "renderMeta": "원본 해상도 저장4,032 × 3,024 px워커 처리6044 ms",
+              "processingMs": 6044
+            },
+            {
+              "iteration": 2,
+              "phase": "ready",
+              "status": "원본 해상도로 준비되었습니다: 4,032 × 3,024 px.",
+              "renderMeta": "원본 해상도 저장4,032 × 3,024 px워커 처리3306 ms",
+              "processingMs": 3306
+            },
+            {
+              "iteration": 3,
+              "phase": "ready",
+              "status": "원본 해상도로 준비되었습니다: 4,032 × 3,024 px.",
+              "renderMeta": "원본 해상도 저장4,032 × 3,024 px워커 처리3407 ms",
+              "processingMs": 3407
+            }
+          ],
+          "previewMedianMs": 3407,
+          "exportRuns": {
+            "png": [
+              {
+                "format": "PNG",
+                "iteration": 1,
+                "durationMs": 285,
+                "suggestedFilename": "haze-heavy-12mp-보정본.png",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-haze-heavy-12mp-png-run1.png"
+              },
+              {
+                "format": "PNG",
+                "iteration": 2,
+                "durationMs": 267,
+                "suggestedFilename": "haze-heavy-12mp-보정본.png",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-haze-heavy-12mp-png-run2.png"
+              },
+              {
+                "format": "PNG",
+                "iteration": 3,
+                "durationMs": 247,
+                "suggestedFilename": "haze-heavy-12mp-보정본.png",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-haze-heavy-12mp-png-run3.png"
+              }
+            ],
+            "jpg": [
+              {
+                "format": "JPG",
+                "iteration": 1,
+                "durationMs": 329,
+                "suggestedFilename": "haze-heavy-12mp-보정본.jpg",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-haze-heavy-12mp-jpg-run1.jpg"
+              },
+              {
+                "format": "JPG",
+                "iteration": 2,
+                "durationMs": 299,
+                "suggestedFilename": "haze-heavy-12mp-보정본.jpg",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-haze-heavy-12mp-jpg-run2.jpg"
+              },
+              {
+                "format": "JPG",
+                "iteration": 3,
+                "durationMs": 183,
+                "suggestedFilename": "haze-heavy-12mp-보정본.jpg",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-haze-heavy-12mp-jpg-run3.jpg"
+              }
+            ]
+          },
+          "exportMedianMs": {
+            "png": 267,
+            "jpg": 299
+          }
+        },
+        {
+          "fixture": "noisy-low-light-12mp.jpg",
+          "previewRuns": [
+            {
+              "iteration": 1,
+              "phase": "ready",
+              "status": "원본 해상도로 준비되었습니다: 4,032 × 3,024 px.",
+              "renderMeta": "원본 해상도 저장4,032 × 3,024 px워커 처리4067 ms",
+              "processingMs": 4067
+            },
+            {
+              "iteration": 2,
+              "phase": "ready",
+              "status": "원본 해상도로 준비되었습니다: 4,032 × 3,024 px.",
+              "renderMeta": "원본 해상도 저장4,032 × 3,024 px워커 처리3990 ms",
+              "processingMs": 3990
+            },
+            {
+              "iteration": 3,
+              "phase": "ready",
+              "status": "원본 해상도로 준비되었습니다: 4,032 × 3,024 px.",
+              "renderMeta": "원본 해상도 저장4,032 × 3,024 px워커 처리4584 ms",
+              "processingMs": 4584
+            }
+          ],
+          "previewMedianMs": 4067,
+          "exportRuns": {
+            "png": [
+              {
+                "format": "PNG",
+                "iteration": 1,
+                "durationMs": 390,
+                "suggestedFilename": "noisy-low-light-12mp-보정본.png",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-noisy-low-light-12mp-png-run1.png"
+              },
+              {
+                "format": "PNG",
+                "iteration": 2,
+                "durationMs": 386,
+                "suggestedFilename": "noisy-low-light-12mp-보정본.png",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-noisy-low-light-12mp-png-run2.png"
+              },
+              {
+                "format": "PNG",
+                "iteration": 3,
+                "durationMs": 489,
+                "suggestedFilename": "noisy-low-light-12mp-보정본.png",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-noisy-low-light-12mp-png-run3.png"
+              }
+            ],
+            "jpg": [
+              {
+                "format": "JPG",
+                "iteration": 1,
+                "durationMs": 228,
+                "suggestedFilename": "noisy-low-light-12mp-보정본.jpg",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-noisy-low-light-12mp-jpg-run1.jpg"
+              },
+              {
+                "format": "JPG",
+                "iteration": 2,
+                "durationMs": 201,
+                "suggestedFilename": "noisy-low-light-12mp-보정본.jpg",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-noisy-low-light-12mp-jpg-run2.jpg"
+              },
+              {
+                "format": "JPG",
+                "iteration": 3,
+                "durationMs": 378,
+                "suggestedFilename": "noisy-low-light-12mp-보정본.jpg",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-noisy-low-light-12mp-jpg-run3.jpg"
+              }
+            ]
+          },
+          "exportMedianMs": {
+            "png": 390,
+            "jpg": 228
+          }
+        }
+      ],
+      "maxPreviewMedianMs": 6168,
+      "parity": [
+        {
+          "fixture": "text-heavy-12mp.jpg",
+          "png": {
+            "crop": {
+              "x": 192,
+              "y": 144,
+              "width": 1216,
+              "height": 912
+            },
+            "meanChannelDelta": 0,
+            "edgeDriftPercent": 0
+          },
+          "jpg": {
+            "crop": {
+              "x": 192,
+              "y": 144,
+              "width": 1216,
+              "height": 912
+            },
+            "meanChannelDelta": 0.28,
+            "edgeDriftPercent": 0.45
+          }
+        },
+        {
+          "fixture": "haze-heavy-12mp.jpg",
+          "png": {
+            "crop": {
+              "x": 192,
+              "y": 144,
+              "width": 1216,
+              "height": 912
+            },
+            "meanChannelDelta": 0,
+            "edgeDriftPercent": 0
+          },
+          "jpg": {
+            "crop": {
+              "x": 192,
+              "y": 144,
+              "width": 1216,
+              "height": 912
+            },
+            "meanChannelDelta": 0.51,
+            "edgeDriftPercent": 1.69
+          }
+        },
+        {
+          "fixture": "noisy-low-light-12mp.jpg",
+          "png": {
+            "crop": {
+              "x": 192,
+              "y": 144,
+              "width": 1216,
+              "height": 912
+            },
+            "meanChannelDelta": 0,
+            "edgeDriftPercent": 0
+          },
+          "jpg": {
+            "crop": {
+              "x": 192,
+              "y": 144,
+              "width": 1216,
+              "height": 912
+            },
+            "meanChannelDelta": 2.87,
+            "edgeDriftPercent": 1.1
+          }
+        }
+      ],
+      "downloads": [
+        {
+          "fixture": "text-heavy-12mp.jpg",
+          "format": "PNG",
+          "iteration": 1,
+          "durationMs": 1098,
+          "suggestedFilename": "text-heavy-12mp-보정본.png",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-text-heavy-12mp-png-run1.png"
+        },
+        {
+          "fixture": "text-heavy-12mp.jpg",
+          "format": "JPG",
+          "iteration": 1,
+          "durationMs": 561,
+          "suggestedFilename": "text-heavy-12mp-보정본.jpg",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-text-heavy-12mp-jpg-run1.jpg"
+        },
+        {
+          "fixture": "text-heavy-12mp.jpg",
+          "format": "PNG",
+          "iteration": 2,
+          "durationMs": 401,
+          "suggestedFilename": "text-heavy-12mp-보정본.png",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-text-heavy-12mp-png-run2.png"
+        },
+        {
+          "fixture": "text-heavy-12mp.jpg",
+          "format": "JPG",
+          "iteration": 2,
+          "durationMs": 435,
+          "suggestedFilename": "text-heavy-12mp-보정본.jpg",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-text-heavy-12mp-jpg-run2.jpg"
+        },
+        {
+          "fixture": "text-heavy-12mp.jpg",
+          "format": "PNG",
+          "iteration": 3,
+          "durationMs": 376,
+          "suggestedFilename": "text-heavy-12mp-보정본.png",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-text-heavy-12mp-png-run3.png"
+        },
+        {
+          "fixture": "text-heavy-12mp.jpg",
+          "format": "JPG",
+          "iteration": 3,
+          "durationMs": 469,
+          "suggestedFilename": "text-heavy-12mp-보정본.jpg",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-text-heavy-12mp-jpg-run3.jpg"
+        },
+        {
+          "fixture": "haze-heavy-12mp.jpg",
+          "format": "PNG",
+          "iteration": 1,
+          "durationMs": 285,
+          "suggestedFilename": "haze-heavy-12mp-보정본.png",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-haze-heavy-12mp-png-run1.png"
+        },
+        {
+          "fixture": "haze-heavy-12mp.jpg",
+          "format": "JPG",
+          "iteration": 1,
+          "durationMs": 329,
+          "suggestedFilename": "haze-heavy-12mp-보정본.jpg",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-haze-heavy-12mp-jpg-run1.jpg"
+        },
+        {
+          "fixture": "haze-heavy-12mp.jpg",
+          "format": "PNG",
+          "iteration": 2,
+          "durationMs": 267,
+          "suggestedFilename": "haze-heavy-12mp-보정본.png",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-haze-heavy-12mp-png-run2.png"
+        },
+        {
+          "fixture": "haze-heavy-12mp.jpg",
+          "format": "JPG",
+          "iteration": 2,
+          "durationMs": 299,
+          "suggestedFilename": "haze-heavy-12mp-보정본.jpg",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-haze-heavy-12mp-jpg-run2.jpg"
+        },
+        {
+          "fixture": "haze-heavy-12mp.jpg",
+          "format": "PNG",
+          "iteration": 3,
+          "durationMs": 247,
+          "suggestedFilename": "haze-heavy-12mp-보정본.png",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-haze-heavy-12mp-png-run3.png"
+        },
+        {
+          "fixture": "haze-heavy-12mp.jpg",
+          "format": "JPG",
+          "iteration": 3,
+          "durationMs": 183,
+          "suggestedFilename": "haze-heavy-12mp-보정본.jpg",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-haze-heavy-12mp-jpg-run3.jpg"
+        },
+        {
+          "fixture": "noisy-low-light-12mp.jpg",
+          "format": "PNG",
+          "iteration": 1,
+          "durationMs": 390,
+          "suggestedFilename": "noisy-low-light-12mp-보정본.png",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-noisy-low-light-12mp-png-run1.png"
+        },
+        {
+          "fixture": "noisy-low-light-12mp.jpg",
+          "format": "JPG",
+          "iteration": 1,
+          "durationMs": 228,
+          "suggestedFilename": "noisy-low-light-12mp-보정본.jpg",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-noisy-low-light-12mp-jpg-run1.jpg"
+        },
+        {
+          "fixture": "noisy-low-light-12mp.jpg",
+          "format": "PNG",
+          "iteration": 2,
+          "durationMs": 386,
+          "suggestedFilename": "noisy-low-light-12mp-보정본.png",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-noisy-low-light-12mp-png-run2.png"
+        },
+        {
+          "fixture": "noisy-low-light-12mp.jpg",
+          "format": "JPG",
+          "iteration": 2,
+          "durationMs": 201,
+          "suggestedFilename": "noisy-low-light-12mp-보정본.jpg",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-noisy-low-light-12mp-jpg-run2.jpg"
+        },
+        {
+          "fixture": "noisy-low-light-12mp.jpg",
+          "format": "PNG",
+          "iteration": 3,
+          "durationMs": 489,
+          "suggestedFilename": "noisy-low-light-12mp-보정본.png",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-noisy-low-light-12mp-png-run3.png"
+        },
+        {
+          "fixture": "noisy-low-light-12mp.jpg",
+          "format": "JPG",
+          "iteration": 3,
+          "durationMs": 378,
+          "suggestedFilename": "noisy-low-light-12mp-보정본.jpg",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium-noisy-low-light-12mp-jpg-run3.jpg"
+        }
+      ],
+      "oversizePrompt": {
+        "phase": "awaiting-oversize-decision",
+        "message": "원본 해상도는 16.6MP입니다. 현재 기기에서는 원본 크기를 유지할 수도 있고, 더 빠르고 안정적인 처리를 위해 16.0MP V1 기준으로 축소할 수도 있습니다.",
+        "keepOriginalDisabled": false
+      },
+      "oversizeDownscaled": {
+        "phase": "ready",
+        "status": "축소 해상도 내보내기로 준비되었습니다: 5,099 × 3,138 px.",
+        "renderMeta": "축소 해상도 저장5,099 × 3,138 px워커 처리5364 ms"
+      },
+      "forcedOversizePrompt": {
+        "phase": "awaiting-oversize-decision",
+        "message": "원본 해상도는 28.0MP이며 현재 메모리 가드레일을 초과합니다. 계속하려면 축소 처리가 필요합니다.",
+        "keepOriginalDisabled": true
+      },
+      "forcedOversizeDownscaled": {
+        "phase": "ready",
+        "status": "축소 해상도 내보내기로 준비되었습니다: 5,292 × 3,024 px.",
+        "renderMeta": "축소 해상도 저장5,292 × 3,024 px워커 처리4928 ms"
+      },
+      "screenshotPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-chromium.png"
+    },
+    {
+      "id": "desktop-firefox",
+      "status": "passed",
+      "timings": [
+        {
+          "fixture": "text-heavy-12mp.jpg",
+          "previewRuns": [
+            {
+              "iteration": 1,
+              "phase": "ready",
+              "status": "원본 해상도로 준비되었습니다: 4,032 × 3,024 px.",
+              "renderMeta": "원본 해상도 저장4,032 × 3,024 px워커 처리5834 ms",
+              "processingMs": 5834
+            },
+            {
+              "iteration": 2,
+              "phase": "ready",
+              "status": "원본 해상도로 준비되었습니다: 4,032 × 3,024 px.",
+              "renderMeta": "원본 해상도 저장4,032 × 3,024 px워커 처리5478 ms",
+              "processingMs": 5478
+            },
+            {
+              "iteration": 3,
+              "phase": "ready",
+              "status": "원본 해상도로 준비되었습니다: 4,032 × 3,024 px.",
+              "renderMeta": "원본 해상도 저장4,032 × 3,024 px워커 처리5937 ms",
+              "processingMs": 5937
+            }
+          ],
+          "previewMedianMs": 5834,
+          "exportRuns": {
+            "png": [
+              {
+                "format": "PNG",
+                "iteration": 1,
+                "durationMs": 213,
+                "suggestedFilename": "text-heavy-12mp-보정본.png",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-text-heavy-12mp-png-run1.png"
+              },
+              {
+                "format": "PNG",
+                "iteration": 2,
+                "durationMs": 193,
+                "suggestedFilename": "text-heavy-12mp-보정본.png",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-text-heavy-12mp-png-run2.png"
+              },
+              {
+                "format": "PNG",
+                "iteration": 3,
+                "durationMs": 278,
+                "suggestedFilename": "text-heavy-12mp-보정본.png",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-text-heavy-12mp-png-run3.png"
+              }
+            ],
+            "jpg": [
+              {
+                "format": "JPG",
+                "iteration": 1,
+                "durationMs": 163,
+                "suggestedFilename": "text-heavy-12mp-보정본.jpg",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-text-heavy-12mp-jpg-run1.jpg"
+              },
+              {
+                "format": "JPG",
+                "iteration": 2,
+                "durationMs": 219,
+                "suggestedFilename": "text-heavy-12mp-보정본.jpg",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-text-heavy-12mp-jpg-run2.jpg"
+              },
+              {
+                "format": "JPG",
+                "iteration": 3,
+                "durationMs": 304,
+                "suggestedFilename": "text-heavy-12mp-보정본.jpg",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-text-heavy-12mp-jpg-run3.jpg"
+              }
+            ]
+          },
+          "exportMedianMs": {
+            "png": 213,
+            "jpg": 219
+          }
+        },
+        {
+          "fixture": "haze-heavy-12mp.jpg",
+          "previewRuns": [
+            {
+              "iteration": 1,
+              "phase": "ready",
+              "status": "원본 해상도로 준비되었습니다: 4,032 × 3,024 px.",
+              "renderMeta": "원본 해상도 저장4,032 × 3,024 px워커 처리5344 ms",
+              "processingMs": 5344
+            },
+            {
+              "iteration": 2,
+              "phase": "ready",
+              "status": "원본 해상도로 준비되었습니다: 4,032 × 3,024 px.",
+              "renderMeta": "원본 해상도 저장4,032 × 3,024 px워커 처리5738 ms",
+              "processingMs": 5738
+            },
+            {
+              "iteration": 3,
+              "phase": "ready",
+              "status": "원본 해상도로 준비되었습니다: 4,032 × 3,024 px.",
+              "renderMeta": "원본 해상도 저장4,032 × 3,024 px워커 처리6046 ms",
+              "processingMs": 6046
+            }
+          ],
+          "previewMedianMs": 5738,
+          "exportRuns": {
+            "png": [
+              {
+                "format": "PNG",
+                "iteration": 1,
+                "durationMs": 554,
+                "suggestedFilename": "haze-heavy-12mp-보정본.png",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-haze-heavy-12mp-png-run1.png"
+              },
+              {
+                "format": "PNG",
+                "iteration": 2,
+                "durationMs": 171,
+                "suggestedFilename": "haze-heavy-12mp-보정본.png",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-haze-heavy-12mp-png-run2.png"
+              },
+              {
+                "format": "PNG",
+                "iteration": 3,
+                "durationMs": 244,
+                "suggestedFilename": "haze-heavy-12mp-보정본.png",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-haze-heavy-12mp-png-run3.png"
+              }
+            ],
+            "jpg": [
+              {
+                "format": "JPG",
+                "iteration": 1,
+                "durationMs": 193,
+                "suggestedFilename": "haze-heavy-12mp-보정본.jpg",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-haze-heavy-12mp-jpg-run1.jpg"
+              },
+              {
+                "format": "JPG",
+                "iteration": 2,
+                "durationMs": 145,
+                "suggestedFilename": "haze-heavy-12mp-보정본.jpg",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-haze-heavy-12mp-jpg-run2.jpg"
+              },
+              {
+                "format": "JPG",
+                "iteration": 3,
+                "durationMs": 116,
+                "suggestedFilename": "haze-heavy-12mp-보정본.jpg",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-haze-heavy-12mp-jpg-run3.jpg"
+              }
+            ]
+          },
+          "exportMedianMs": {
+            "png": 244,
+            "jpg": 145
+          }
+        },
+        {
+          "fixture": "noisy-low-light-12mp.jpg",
+          "previewRuns": [
+            {
+              "iteration": 1,
+              "phase": "ready",
+              "status": "원본 해상도로 준비되었습니다: 4,032 × 3,024 px.",
+              "renderMeta": "원본 해상도 저장4,032 × 3,024 px워커 처리6395 ms",
+              "processingMs": 6395
+            },
+            {
+              "iteration": 2,
+              "phase": "ready",
+              "status": "원본 해상도로 준비되었습니다: 4,032 × 3,024 px.",
+              "renderMeta": "원본 해상도 저장4,032 × 3,024 px워커 처리6477 ms",
+              "processingMs": 6477
+            },
+            {
+              "iteration": 3,
+              "phase": "ready",
+              "status": "원본 해상도로 준비되었습니다: 4,032 × 3,024 px.",
+              "renderMeta": "원본 해상도 저장4,032 × 3,024 px워커 처리10913 ms",
+              "processingMs": 10913
+            }
+          ],
+          "previewMedianMs": 6477,
+          "exportRuns": {
+            "png": [
+              {
+                "format": "PNG",
+                "iteration": 1,
+                "durationMs": 253,
+                "suggestedFilename": "noisy-low-light-12mp-보정본.png",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-noisy-low-light-12mp-png-run1.png"
+              },
+              {
+                "format": "PNG",
+                "iteration": 2,
+                "durationMs": 338,
+                "suggestedFilename": "noisy-low-light-12mp-보정본.png",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-noisy-low-light-12mp-png-run2.png"
+              },
+              {
+                "format": "PNG",
+                "iteration": 3,
+                "durationMs": 447,
+                "suggestedFilename": "noisy-low-light-12mp-보정본.png",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-noisy-low-light-12mp-png-run3.png"
+              }
+            ],
+            "jpg": [
+              {
+                "format": "JPG",
+                "iteration": 1,
+                "durationMs": 170,
+                "suggestedFilename": "noisy-low-light-12mp-보정본.jpg",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-noisy-low-light-12mp-jpg-run1.jpg"
+              },
+              {
+                "format": "JPG",
+                "iteration": 2,
+                "durationMs": 174,
+                "suggestedFilename": "noisy-low-light-12mp-보정본.jpg",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-noisy-low-light-12mp-jpg-run2.jpg"
+              },
+              {
+                "format": "JPG",
+                "iteration": 3,
+                "durationMs": 120,
+                "suggestedFilename": "noisy-low-light-12mp-보정본.jpg",
+                "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-noisy-low-light-12mp-jpg-run3.jpg"
+              }
+            ]
+          },
+          "exportMedianMs": {
+            "png": 338,
+            "jpg": 170
+          }
+        }
+      ],
+      "maxPreviewMedianMs": 6477,
+      "parity": [
+        {
+          "fixture": "text-heavy-12mp.jpg",
+          "png": {
+            "crop": {
+              "x": 192,
+              "y": 144,
+              "width": 1216,
+              "height": 912
+            },
+            "meanChannelDelta": 0,
+            "edgeDriftPercent": 0
+          },
+          "jpg": {
+            "crop": {
+              "x": 192,
+              "y": 144,
+              "width": 1216,
+              "height": 912
+            },
+            "meanChannelDelta": 0.17,
+            "edgeDriftPercent": 0.49
+          }
+        },
+        {
+          "fixture": "haze-heavy-12mp.jpg",
+          "png": {
+            "crop": {
+              "x": 192,
+              "y": 144,
+              "width": 1216,
+              "height": 912
+            },
+            "meanChannelDelta": 0,
+            "edgeDriftPercent": 0
+          },
+          "jpg": {
+            "crop": {
+              "x": 192,
+              "y": 144,
+              "width": 1216,
+              "height": 912
+            },
+            "meanChannelDelta": 0.49,
+            "edgeDriftPercent": 0.24
+          }
+        },
+        {
+          "fixture": "noisy-low-light-12mp.jpg",
+          "png": {
+            "crop": {
+              "x": 192,
+              "y": 144,
+              "width": 1216,
+              "height": 912
+            },
+            "meanChannelDelta": 0,
+            "edgeDriftPercent": 0
+          },
+          "jpg": {
+            "crop": {
+              "x": 192,
+              "y": 144,
+              "width": 1216,
+              "height": 912
+            },
+            "meanChannelDelta": 1.2,
+            "edgeDriftPercent": 0.01
+          }
+        }
+      ],
+      "downloads": [
+        {
+          "fixture": "text-heavy-12mp.jpg",
+          "format": "PNG",
+          "iteration": 1,
+          "durationMs": 213,
+          "suggestedFilename": "text-heavy-12mp-보정본.png",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-text-heavy-12mp-png-run1.png"
+        },
+        {
+          "fixture": "text-heavy-12mp.jpg",
+          "format": "JPG",
+          "iteration": 1,
+          "durationMs": 163,
+          "suggestedFilename": "text-heavy-12mp-보정본.jpg",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-text-heavy-12mp-jpg-run1.jpg"
+        },
+        {
+          "fixture": "text-heavy-12mp.jpg",
+          "format": "PNG",
+          "iteration": 2,
+          "durationMs": 193,
+          "suggestedFilename": "text-heavy-12mp-보정본.png",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-text-heavy-12mp-png-run2.png"
+        },
+        {
+          "fixture": "text-heavy-12mp.jpg",
+          "format": "JPG",
+          "iteration": 2,
+          "durationMs": 219,
+          "suggestedFilename": "text-heavy-12mp-보정본.jpg",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-text-heavy-12mp-jpg-run2.jpg"
+        },
+        {
+          "fixture": "text-heavy-12mp.jpg",
+          "format": "PNG",
+          "iteration": 3,
+          "durationMs": 278,
+          "suggestedFilename": "text-heavy-12mp-보정본.png",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-text-heavy-12mp-png-run3.png"
+        },
+        {
+          "fixture": "text-heavy-12mp.jpg",
+          "format": "JPG",
+          "iteration": 3,
+          "durationMs": 304,
+          "suggestedFilename": "text-heavy-12mp-보정본.jpg",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-text-heavy-12mp-jpg-run3.jpg"
+        },
+        {
+          "fixture": "haze-heavy-12mp.jpg",
+          "format": "PNG",
+          "iteration": 1,
+          "durationMs": 554,
+          "suggestedFilename": "haze-heavy-12mp-보정본.png",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-haze-heavy-12mp-png-run1.png"
+        },
+        {
+          "fixture": "haze-heavy-12mp.jpg",
+          "format": "JPG",
+          "iteration": 1,
+          "durationMs": 193,
+          "suggestedFilename": "haze-heavy-12mp-보정본.jpg",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-haze-heavy-12mp-jpg-run1.jpg"
+        },
+        {
+          "fixture": "haze-heavy-12mp.jpg",
+          "format": "PNG",
+          "iteration": 2,
+          "durationMs": 171,
+          "suggestedFilename": "haze-heavy-12mp-보정본.png",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-haze-heavy-12mp-png-run2.png"
+        },
+        {
+          "fixture": "haze-heavy-12mp.jpg",
+          "format": "JPG",
+          "iteration": 2,
+          "durationMs": 145,
+          "suggestedFilename": "haze-heavy-12mp-보정본.jpg",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-haze-heavy-12mp-jpg-run2.jpg"
+        },
+        {
+          "fixture": "haze-heavy-12mp.jpg",
+          "format": "PNG",
+          "iteration": 3,
+          "durationMs": 244,
+          "suggestedFilename": "haze-heavy-12mp-보정본.png",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-haze-heavy-12mp-png-run3.png"
+        },
+        {
+          "fixture": "haze-heavy-12mp.jpg",
+          "format": "JPG",
+          "iteration": 3,
+          "durationMs": 116,
+          "suggestedFilename": "haze-heavy-12mp-보정본.jpg",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-haze-heavy-12mp-jpg-run3.jpg"
+        },
+        {
+          "fixture": "noisy-low-light-12mp.jpg",
+          "format": "PNG",
+          "iteration": 1,
+          "durationMs": 253,
+          "suggestedFilename": "noisy-low-light-12mp-보정본.png",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-noisy-low-light-12mp-png-run1.png"
+        },
+        {
+          "fixture": "noisy-low-light-12mp.jpg",
+          "format": "JPG",
+          "iteration": 1,
+          "durationMs": 170,
+          "suggestedFilename": "noisy-low-light-12mp-보정본.jpg",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-noisy-low-light-12mp-jpg-run1.jpg"
+        },
+        {
+          "fixture": "noisy-low-light-12mp.jpg",
+          "format": "PNG",
+          "iteration": 2,
+          "durationMs": 338,
+          "suggestedFilename": "noisy-low-light-12mp-보정본.png",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-noisy-low-light-12mp-png-run2.png"
+        },
+        {
+          "fixture": "noisy-low-light-12mp.jpg",
+          "format": "JPG",
+          "iteration": 2,
+          "durationMs": 174,
+          "suggestedFilename": "noisy-low-light-12mp-보정본.jpg",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-noisy-low-light-12mp-jpg-run2.jpg"
+        },
+        {
+          "fixture": "noisy-low-light-12mp.jpg",
+          "format": "PNG",
+          "iteration": 3,
+          "durationMs": 447,
+          "suggestedFilename": "noisy-low-light-12mp-보정본.png",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-noisy-low-light-12mp-png-run3.png"
+        },
+        {
+          "fixture": "noisy-low-light-12mp.jpg",
+          "format": "JPG",
+          "iteration": 3,
+          "durationMs": 120,
+          "suggestedFilename": "noisy-low-light-12mp-보정본.jpg",
+          "savedPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox-noisy-low-light-12mp-jpg-run3.jpg"
+        }
+      ],
+      "oversizePrompt": {
+        "phase": "awaiting-oversize-decision",
+        "message": "원본 해상도는 16.6MP입니다. 현재 기기에서는 원본 크기를 유지할 수도 있고, 더 빠르고 안정적인 처리를 위해 16.0MP V1 기준으로 축소할 수도 있습니다.",
+        "keepOriginalDisabled": false
+      },
+      "oversizeDownscaled": {
+        "phase": "ready",
+        "status": "축소 해상도 내보내기로 준비되었습니다: 5,099 × 3,138 px.",
+        "renderMeta": "축소 해상도 저장5,099 × 3,138 px워커 처리7830 ms"
+      },
+      "forcedOversizePrompt": {
+        "phase": "awaiting-oversize-decision",
+        "message": "원본 해상도는 28.0MP이며 현재 메모리 가드레일을 초과합니다. 계속하려면 축소 처리가 필요합니다.",
+        "keepOriginalDisabled": true
+      },
+      "forcedOversizeDownscaled": {
+        "phase": "ready",
+        "status": "축소 해상도 내보내기로 준비되었습니다: 5,292 × 3,024 px.",
+        "renderMeta": "축소 해상도 저장5,292 × 3,024 px워커 처리7710 ms"
+      },
+      "screenshotPath": "C:\\Users\\tykim\\Image Enhancer\\artifacts\\qa-matrix\\desktop-firefox.png"
+    }
+  ]
+}

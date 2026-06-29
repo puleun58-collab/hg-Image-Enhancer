@@ -1,0 +1,7 @@
+Desktop-first adversarial review against the approved V1 contract:
+- PASS: Official launch scope is now desktop Chromium + desktop Firefox only; mobile browsers are explicitly out of scope in code and README.
+- PASS: Desktop Chromium and desktop Firefox both passed qa:matrix with preview medians under the 10-second target; worst recorded desktop median was 6477 ms.
+- PASS: Preview/export parity was captured for text-heavy, haze-heavy, and noisy-low-light 12MP fixtures on both supported desktop targets, with PNG parity at zero drift and JPG drift staying within the defined tolerance.
+- PASS: Oversize handling proves both branches on the supported desktop matrix: optional original/downscale choice for 16.6MP and forced downscale when the 28MP guardrail disables original-size processing.
+- PASS: Browser automation evidence and screenshots are present for the desktop-first launch surface in artifacts/browser-automation.json, artifacts/browser-smoke-ko.png, and artifacts/qa-matrix/.
+- NOTE: Mobile browsers may still render, but they are not part of the V1 launch claim or approval gate.
