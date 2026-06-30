@@ -41,3 +41,5 @@ temp/
 *.swp
 *.swo
 ~$*
+
+.vercel
