@@ -2,6 +2,10 @@
 
 브라우저 안에서 단일 이미지를 보정하고, 전후 비교 후 PNG/JPG로 저장하는 V1 프로젝트다.
 
+## 배포 주소
+- 프로덕션: https://hg-image-enhancer.vercel.app
+- 배포 상세: https://hg-image-enhancer-qi8iohc46-puleun58-collabs-projects.vercel.app
+
 ## 요구 환경
 - Node.js 20+
 - npm 10+
