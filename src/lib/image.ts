@@ -5,14 +5,12 @@ import type {
   RenderResult,
 } from "../types";
 
-export const ORIGINAL_SIZE_GUARDRAIL_MEGAPIXELS = 24;
-export const ORIGINAL_SIZE_GUARDRAIL_RGBA_BYTES = 128 * 1024 * 1024;
-export const OVERSIZE_MEGAPIXEL_THRESHOLD = 16;
-export const OVERSIZE_PIXEL_THRESHOLD = OVERSIZE_MEGAPIXEL_THRESHOLD * 1_000_000;
+export const OUTPUT_MAX_MEGAPIXELS = 24;
+export const OUTPUT_MAX_PIXEL_COUNT = OUTPUT_MAX_MEGAPIXELS * 1_000_000;
 export const PREVIEW_MAX_EDGE = 1600;
 
 export interface OutputSizing {
-  strategy: "original" | "downscaled";
+  strategy: "original" | "original-clamped" | "2x" | "2x-clamped";
   width: number;
   height: number;
   scale: number;
@@ -45,35 +43,21 @@ export function estimateRgbaBytes(width: number, height: number): number {
 }
 
 export function isOversize(width: number, height: number): boolean {
-  return width * height > OVERSIZE_PIXEL_THRESHOLD;
+  return width * height > OUTPUT_MAX_PIXEL_COUNT;
 }
 
 export function getOversizeDecision(
   source: Pick<ImageSource, "width" | "height" | "megapixels" | "estimatedRgbaBytes">,
 ): OversizeDecision {
-  const allowOriginal =
-    source.megapixels <= ORIGINAL_SIZE_GUARDRAIL_MEGAPIXELS
-    && source.estimatedRgbaBytes <= ORIGINAL_SIZE_GUARDRAIL_RGBA_BYTES;
-
   if (!isOversize(source.width, source.height)) {
     return {
-      allowOriginal: true,
-      message: "원본 해상도가 V1의 16MP 제한 이내입니다.",
-    };
-  }
-
-  if (allowOriginal) {
-    return {
-      allowOriginal: true,
-      message:
-        `원본 해상도는 ${source.megapixels.toFixed(1)}MP입니다. 현재 기기에서는 원본 크기를 유지할 수도 있고, 더 빠르고 안정적인 처리를 위해 16.0MP V1 기준으로 축소할 수도 있습니다.`,
+      message: `원본 해상도가 V1의 ${OUTPUT_MAX_MEGAPIXELS}MP 처리 기준 이내입니다. Original 또는 2x 중에서 원하는 출력 크기를 선택하세요.`,
     };
   }
 
   return {
-    allowOriginal: false,
     message:
-      `원본 해상도는 ${source.megapixels.toFixed(1)}MP이며 현재 메모리 가드레일을 초과합니다. 계속하려면 축소 처리가 필요합니다.`,
+      `원본 해상도는 ${source.megapixels.toFixed(1)}MP입니다. Original은 현재 해상도를 유지하되 최대 ${OUTPUT_MAX_MEGAPIXELS.toFixed(1)}MP로 제한하고, 2x는 가로/세로를 2배로 키운 뒤 ${OUTPUT_MAX_MEGAPIXELS.toFixed(1)}MP 이하로 제한합니다.`,
   };
 }
 
@@ -105,26 +89,25 @@ export function revokeProcessedImageSet(result: ProcessedImageSet | undefined): 
 export function chooseOutputSizing(
   width: number,
   height: number,
-  preferOriginalSize: boolean,
+  outputMode: "original" | "2x",
 ): OutputSizing {
-  if (preferOriginalSize || !isOversize(width, height)) {
-    return {
-      strategy: "original",
-      width,
-      height,
-      scale: 1,
-    };
-  }
-
-  const scale = Math.sqrt(OVERSIZE_PIXEL_THRESHOLD / (width * height));
-  const scaledWidth = clampDimension(width * scale);
-  const scaledHeight = clampDimension(height * scale);
+  const targetScale = outputMode === "2x" ? 2 : 1;
+  const targetWidth = width * targetScale;
+  const targetHeight = height * targetScale;
+  const fitted = fitWithinPixelLimit(targetWidth, targetHeight, OUTPUT_MAX_PIXEL_COUNT);
 
   return {
-    strategy: "downscaled",
-    width: scaledWidth,
-    height: scaledHeight,
-    scale: scaledWidth / width,
+    strategy:
+      outputMode === "2x"
+        ? fitted.clamped
+          ? "2x-clamped"
+          : "2x"
+        : fitted.clamped
+          ? "original-clamped"
+          : "original",
+    width: fitted.width,
+    height: fitted.height,
+    scale: fitted.width / width,
   };
 }
 
@@ -149,6 +132,42 @@ export function choosePreviewSizing(
     width: clampDimension(width * scale),
     height: clampDimension(height * scale),
     scale,
+  };
+}
+
+function fitWithinPixelLimit(width: number, height: number, pixelLimit: number) {
+  const targetPixels = width * height;
+
+  if (targetPixels <= pixelLimit) {
+    return {
+      width: clampDimension(width),
+      height: clampDimension(height),
+      clamped: false,
+    };
+  }
+
+  const scale = Math.sqrt(pixelLimit / targetPixels);
+  let fittedWidth = clampDimension(width * scale);
+  let fittedHeight = clampDimension(height * scale);
+
+  while (fittedWidth * fittedHeight > pixelLimit) {
+    if (fittedWidth >= fittedHeight && fittedWidth > 1) {
+      fittedWidth -= 1;
+      continue;
+    }
+
+    if (fittedHeight > 1) {
+      fittedHeight -= 1;
+      continue;
+    }
+
+    break;
+  }
+
+  return {
+    width: fittedWidth,
+    height: fittedHeight,
+    clamped: true,
   };
 }
 

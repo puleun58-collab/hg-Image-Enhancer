@@ -1,13 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  ORIGINAL_SIZE_GUARDRAIL_MEGAPIXELS,
-  OVERSIZE_MEGAPIXEL_THRESHOLD,
+  OUTPUT_MAX_MEGAPIXELS,
   chooseOutputSizing,
   choosePreviewSizing,
   clampStrength,
   computeMegapixels,
-  estimateRgbaBytes,
   getOversizeDecision,
 } from "./image";
 
@@ -19,34 +17,39 @@ describe("image helpers", () => {
     expect(clampStrength(3)).toBe(1);
   });
 
-  it("offers original-size processing only within current guardrails", () => {
-    const withinGuardrail = {
-      width: 5000,
-      height: 3600,
-      megapixels: computeMegapixels(5000, 3600),
-      estimatedRgbaBytes: estimateRgbaBytes(5000, 3600),
-    };
-    const beyondGuardrail = {
-      width: 8000,
-      height: 5000,
-      megapixels: computeMegapixels(8000, 5000),
-      estimatedRgbaBytes: estimateRgbaBytes(8000, 5000),
-    };
+  it("describes the 24MP processing limit", () => {
+    const decision = getOversizeDecision({
+      width: 7000,
+      height: 4000,
+      megapixels: computeMegapixels(7000, 4000),
+      estimatedRgbaBytes: 7000 * 4000 * 4,
+    });
 
-    const withinDecision = getOversizeDecision(withinGuardrail);
-    const beyondDecision = getOversizeDecision(beyondGuardrail);
-
-    expect(withinGuardrail.megapixels).toBeGreaterThan(OVERSIZE_MEGAPIXEL_THRESHOLD);
-    expect(withinGuardrail.megapixels).toBeLessThanOrEqual(ORIGINAL_SIZE_GUARDRAIL_MEGAPIXELS);
-    expect(withinDecision.allowOriginal).toBe(true);
-    expect(beyondDecision.allowOriginal).toBe(false);
+    expect(decision.message).toContain(`${OUTPUT_MAX_MEGAPIXELS.toFixed(1)}MP`);
+    expect(decision.message).toContain("Original");
+    expect(decision.message).toContain("2x");
   });
 
-  it("downscales oversized exports to the 16MP target", () => {
-    const sizing = chooseOutputSizing(8000, 5000, false);
+  it("keeps original output within the 24MP cap", () => {
+    const sizing = chooseOutputSizing(8000, 5000, "original");
 
-    expect(sizing.strategy).toBe("downscaled");
-    expect(computeMegapixels(sizing.width, sizing.height)).toBeLessThanOrEqual(OVERSIZE_MEGAPIXEL_THRESHOLD + 0.01);
+    expect(sizing.strategy).toBe("original-clamped");
+    expect(computeMegapixels(sizing.width, sizing.height)).toBeLessThanOrEqual(OUTPUT_MAX_MEGAPIXELS + 0.01);
+    expect(sizing.scale).toBeLessThan(1);
+  });
+
+  it("upscales to 2x and clamps to the 24MP cap when needed", () => {
+    const withinCap = chooseOutputSizing(2000, 1500, "2x");
+    const clamped = chooseOutputSizing(4032, 3024, "2x");
+
+    expect(withinCap.strategy).toBe("2x");
+    expect(withinCap.width).toBe(4000);
+    expect(withinCap.height).toBe(3000);
+
+    expect(clamped.strategy).toBe("2x-clamped");
+    expect(computeMegapixels(clamped.width, clamped.height)).toBeLessThanOrEqual(OUTPUT_MAX_MEGAPIXELS + 0.01);
+    expect(clamped.scale).toBeGreaterThan(1);
+    expect(clamped.scale).toBeLessThan(2);
   });
 
   it("limits previews to the configured max edge", () => {

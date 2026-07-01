@@ -14,6 +14,8 @@ export type AppPhase =
   | "compatibility-blocked"
   | "error";
 
+export type OutputMode = "original" | "2x";
+
 export interface CapabilityReport {
   bucket: BrowserBucket;
   supported: boolean;
@@ -46,7 +48,7 @@ export interface RenderResult {
 export interface ProcessedImageSet {
   preview: RenderResult;
   export: RenderResult;
-  strategy: "original" | "downscaled";
+  strategy: "original" | "original-clamped" | "2x" | "2x-clamped";
   width: number;
   height: number;
   previewScale: number;
@@ -56,7 +58,7 @@ export interface ProcessedImageSet {
 export interface ProcessRequest {
   source: ImageSource;
   strength: number;
-  preferOriginalSize: boolean;
+  outputMode: OutputMode;
   outputMimeType: "image/png" | "image/jpeg";
   jpegQuality: number;
 }
@@ -71,6 +73,5 @@ export interface ProcessError {
 }
 
 export interface OversizeDecision {
-  allowOriginal: boolean;
   message: string;
 }

@@ -1,6 +1,6 @@
 # Image Enhancer
 
-브라우저 안에서 단일 이미지를 보정하고, 전후 비교 후 PNG/JPG로 저장하는 V1 프로젝트다.
+브라우저 안에서 이미지를 보정하고, `Original` 또는 `2x` 출력으로 전후 비교 후 PNG/JPG로 저장하는 V1 프로젝트다.
 
 ## 배포 주소
 - 프로덕션: https://hg-image-enhancer.vercel.app
@@ -73,14 +73,14 @@ npm run qa:matrix
 ```text
 .
 ├─ src/
-│  ├─ App.tsx                 # 메인 UI, 업로드/슬라이더/비교/저장 흐름
+│  ├─ App.tsx                 # 메인 UI, 업로드/강도/출력 모드/비교/저장 흐름
 │  ├─ main.tsx                # React 진입점
 │  ├─ styles.css              # 앱 스타일
 │  ├─ types.ts                # 공용 타입 정의
 │  ├─ lib/
 │  │  ├─ capabilities.ts      # 브라우저 지원 판정과 capability 리포트
-│  │  ├─ image.ts             # 이미지 로드, 크기 검사, oversize 정책
-│  │  ├─ enhance.ts           # 실제 보정 파이프라인
+│  │  ├─ image.ts             # 이미지 로드, 24MP 출력 제한, 2x sizing 정책
+│  │  ├─ enhance.ts           # 실제 보정 파이프라인과 처리 요청 조합
 │  │  ├─ export.ts            # PNG/JPG Blob 생성과 export 보조 로직
 │  │  ├─ *.test.ts            # 핵심 라이브러리 단위 테스트
 │  └─ workers/
@@ -153,12 +153,12 @@ npx playwright install chromium firefox
 
 ### 5) 대용량 이미지 업로드 후 진행이 막힘
 증상:
-- 16MP 초과 이미지 업로드 시 선택 패널이 표시됨
+- 24MP를 넘는 이미지 업로드 시 출력 방식 선택 패널이 표시되거나 최종 출력이 자동으로 clamp됨
 
 대응:
-- 원본 유지가 가능하면 그대로 진행
-- 원본 유지 버튼이 비활성화되어 있으면 `안정성을 위해 축소`를 선택
-- 더 큰 이미지는 `fixtures/force-downscale-28mp.jpg`처럼 강제 축소 경로를 타게 된다
+- `Original`은 원본 해상도를 우선 사용하되, 최종 출력이 24MP를 넘으면 비율을 유지한 채 자동으로 24MP 이하로 줄인다.
+- `2x`는 가로/세로를 2배로 키우되, 최종 출력이 24MP를 넘으면 비율을 유지한 채 자동으로 24MP 이하로 줄인다.
+- 더 큰 이미지는 `fixtures/force-downscale-28mp.jpg`처럼 강제 clamp 경로를 타게 된다
 
 ### 6) 자동 QA 도중 실패했을 때
 우선 확인할 항목:
@@ -184,8 +184,9 @@ npm run build
 3. 데스크톱 Chromium 또는 데스크톱 Firefox에서 확인
 4. `fixtures/text-heavy.png` 업로드
 5. 슬라이더를 움직여 재처리 확인
-6. `PNG 저장` / `JPG 저장` 버튼 확인
-7. `fixtures/oversize.png`와 `fixtures/force-downscale-28mp.jpg`로 oversize 경로 확인
+6. `Original` / `2x` 출력 모드 전환 확인
+7. `PNG 저장` / `JPG 저장` 버튼 확인
+8. `fixtures/oversize.png`와 `fixtures/force-downscale-28mp.jpg`로 24MP clamp 경로 확인
 ## 참고
 - `qa:matrix`는 자동 검증 결과를 누적 산출물로 남긴다.
 - `.gjc/` 폴더는 GJC 워크플로 상태/계획/증적용 내부 폴더다.

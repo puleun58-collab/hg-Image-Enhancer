@@ -9,6 +9,7 @@ import type {
   BrowserBucket,
   CapabilityReport,
   ImageSource,
+  OutputMode,
   OversizeDecision,
   ProcessError,
   ProcessRequest,
@@ -17,7 +18,7 @@ import type {
 
 import { getCapabilityReport } from "./lib/capabilities";
 import {
-  OVERSIZE_MEGAPIXEL_THRESHOLD,
+  OUTPUT_MAX_MEGAPIXELS,
   clampStrength as clampStrengthValue,
   getOversizeDecision,
   inspectImageFile,
@@ -42,11 +43,11 @@ const DEFAULT_STRENGTH = 0.55;
 const COMPARE_MIN = 0;
 const COMPARE_MAX = 100;
 const PROCESS_DEBOUNCE_MS = 180;
-const FALLBACK_OVERSIZE_MEGAPIXELS = 16;
+const FALLBACK_OVERSIZE_MEGAPIXELS = 24;
 const FALLBACK_JPEG_QUALITY = 0.92;
 
 function resolveOversizeThreshold(): number {
-  return OVERSIZE_MEGAPIXEL_THRESHOLD;
+  return OUTPUT_MAX_MEGAPIXELS;
 }
 
 function resolveJpegQuality(): number {
@@ -218,13 +219,13 @@ export default function App() {
   const [result, setResult] = useState<ProcessResponse | null>(null);
   const [strength, setStrength] = useState(DEFAULT_STRENGTH);
   const [exportFormat, setExportFormat] = useState<ExportFormat>("image/png");
+  const [outputMode, setOutputMode] = useState<OutputMode>("original");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [comparePosition, setComparePosition] = useState(50);
   const [isComparing, setIsComparing] = useState(false);
   const processorRef = useRef<Processor | null>(null);
   const requestIdRef = useRef(0);
   const debounceRef = useRef<number | null>(null);
-  const preferredOriginalSizeRef = useRef(true);
   const completedProcessKeyRef = useRef("");
   const latestSourceRef = useRef<ImageSource | null>(null);
   const latestPendingSourceRef = useRef<PendingSource | null>(null);
@@ -283,7 +284,7 @@ export default function App() {
       previewObjectUrl: result?.preview.objectUrl ?? null,
       exportObjectUrl: result?.export.objectUrl ?? null,
       debugPreviewUrl: debugPreviewUrlRef.current,
-      strategy: result?.strategy ?? null,
+      strategy: result ? `${outputMode}:${result.strategy}` : null,
       dimensions: result ? { width: result.width, height: result.height } : null,
     };
 
@@ -292,7 +293,7 @@ export default function App() {
       debugPreviewUrlRef.current = null;
       currentWindow.__imageEnhancerDebug = undefined;
     };
-  }, [exportFormat, result, source, strength]);
+  }, [exportFormat, outputMode, result, source, strength]);
 
   useEffect(() => {
     return () => {
@@ -342,10 +343,10 @@ export default function App() {
     });
   }, []);
 
-  const getProcessKey = useCallback((targetSource: ImageSource, preferOriginalSize: boolean, targetStrength: number, targetFormat: ExportFormat) => {
+  const getProcessKey = useCallback((targetSource: ImageSource, targetMode: OutputMode, targetStrength: number, targetFormat: ExportFormat) => {
     return [
       targetSource.objectUrl,
-      preferOriginalSize ? "original" : "downscaled",
+      targetMode,
       clampStrength(targetStrength).toFixed(2),
       targetFormat,
     ].join("|");
@@ -353,7 +354,7 @@ export default function App() {
 
 
   const runProcess = useCallback(
-    async (targetSource: ImageSource, preferOriginalSize: boolean, targetStrength: number, targetFormat: ExportFormat) => {
+    async (targetSource: ImageSource, targetMode: OutputMode, targetStrength: number, targetFormat: ExportFormat) => {
       const processor = processorRef.current;
 
       if (!processor) {
@@ -361,16 +362,15 @@ export default function App() {
       }
 
       const nextRequestId = requestIdRef.current + 1;
-      const processKey = getProcessKey(targetSource, preferOriginalSize, targetStrength, targetFormat);
+      const processKey = getProcessKey(targetSource, targetMode, targetStrength, targetFormat);
       requestIdRef.current = nextRequestId;
-      preferredOriginalSizeRef.current = preferOriginalSize;
       setErrorMessage(null);
       setPhase("processing");
 
       const response = await processor.process({
         source: targetSource,
         strength: clampStrength(targetStrength),
-        preferOriginalSize,
+        outputMode: targetMode,
         outputMimeType: targetFormat,
         jpegQuality,
       });
@@ -391,10 +391,11 @@ export default function App() {
 
 
   const processPendingSelection = useCallback(
-    async (targetSource: ImageSource, preferOriginalSize: boolean) => {
+    async (targetSource: ImageSource, nextOutputMode: OutputMode) => {
       setPendingSource(null);
       replaceSource(targetSource);
-      await runProcess(targetSource, preferOriginalSize, strength, exportFormat);
+      setOutputMode(nextOutputMode);
+      await runProcess(targetSource, nextOutputMode, strength, exportFormat);
     },
     [exportFormat, replaceSource, runProcess, strength],
   );
@@ -436,9 +437,8 @@ export default function App() {
         }
 
         replaceSource(nextSource);
-        preferredOriginalSizeRef.current = true;
         setPendingSource(null);
-        await runProcess(nextSource, true, strength, exportFormat);
+        await runProcess(nextSource, outputMode, strength, exportFormat);
 
       } catch (error) {
         setPhase("error");
@@ -447,18 +447,18 @@ export default function App() {
         event.target.value = "";
       }
     },
-    [exportFormat, oversizeThreshold, replacePendingSource, replaceResult, replaceSource, resetProcessingState, runProcess, strength],
+    [exportFormat, outputMode, oversizeThreshold, replacePendingSource, replaceResult, replaceSource, resetProcessingState, runProcess, strength],
   );
 
 
   const handleOversizeChoice = useCallback(
-    async (preferOriginalSize: boolean) => {
+    async (nextOutputMode: OutputMode) => {
       if (!pendingSource) {
         return;
       }
 
       try {
-        await processPendingSelection(pendingSource.source, preferOriginalSize);
+        await processPendingSelection(pendingSource.source, nextOutputMode);
       } catch (error) {
         setPhase("error");
         setErrorMessage(error instanceof Error ? error.message : "이미지 처리를 완료하지 못했습니다.");
@@ -472,7 +472,7 @@ export default function App() {
       return;
     }
 
-    const nextProcessKey = getProcessKey(source, preferredOriginalSizeRef.current, strength, exportFormat);
+    const nextProcessKey = getProcessKey(source, outputMode, strength, exportFormat);
     if (completedProcessKeyRef.current === nextProcessKey) {
       return;
     }
@@ -482,7 +482,7 @@ export default function App() {
     }
 
     debounceRef.current = window.setTimeout(() => {
-      runProcess(source, preferredOriginalSizeRef.current, strength, exportFormat).catch((error) => {
+      runProcess(source, outputMode, strength, exportFormat).catch((error) => {
         setPhase("error");
         setErrorMessage(error instanceof Error ? error.message : "이미지 처리를 완료하지 못했습니다.");
       });
@@ -494,7 +494,7 @@ export default function App() {
         debounceRef.current = null;
       }
     };
-  }, [exportFormat, getProcessKey, phase, result, runProcess, source, strength]);
+  }, [exportFormat, getProcessKey, outputMode, phase, result, runProcess, source, strength]);
 
   const handleStrengthChange = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     setStrength(Number(event.target.value));
@@ -589,12 +589,17 @@ export default function App() {
         : `현재 저장 형식은 JPG이며 품질 ${Math.round(jpegQuality * 100)}%를 사용합니다.`;
     }
 
-    if (result.strategy === "original") {
-      return `원본 해상도로 준비되었습니다: ${formatDimensionLabel(result.width, result.height)}.`;
+    switch (result.strategy) {
+      case "original":
+        return `Original 출력으로 준비되었습니다: ${formatDimensionLabel(result.width, result.height)}.`;
+      case "original-clamped":
+        return `Original 출력을 ${oversizeThreshold}MP 한도로 조정했습니다: ${formatDimensionLabel(result.width, result.height)}.`;
+      case "2x":
+        return `2x 출력으로 준비되었습니다: ${formatDimensionLabel(result.width, result.height)}.`;
+      default:
+        return `2x 출력을 ${oversizeThreshold}MP 한도로 조정했습니다: ${formatDimensionLabel(result.width, result.height)}.`;
     }
-
-    return `축소 해상도 내보내기로 준비되었습니다: ${formatDimensionLabel(result.width, result.height)}.`;
-  }, [exportFormat, jpegQuality, result]);
+  }, [exportFormat, jpegQuality, oversizeThreshold, result]);
 
   const busy = phase === "processing" || phase === "exporting";
   const promptState = phase === "awaiting-oversize-decision" ? pendingSource : null;
@@ -605,7 +610,7 @@ export default function App() {
       <section className="panel hero-panel">
         <div>
           <p className="eyebrow">Image Enhancer V1</p>
-          <h1>브라우저에서 바로 처리하는 단일 이미지 보정.</h1>
+          <h1>Enhance Images, Right in Your Browser</h1>
           <p className="hero-copy">
             이미지 한 장을 업로드하고, 강도 하나만 조절한 뒤, 전후를 비교하고 PNG 또는 JPG로 저장합니다.
           </p>
@@ -682,6 +687,33 @@ export default function App() {
               </label>
 
               <fieldset className="export-card">
+                <legend>출력 크기</legend>
+                <label>
+                  <input
+                    type="radio"
+                    name="output-mode"
+                    value="original"
+                    checked={outputMode === "original"}
+                    onChange={() => setOutputMode("original")}
+                    disabled={!source || busy}
+                  />
+                  Original
+                </label>
+                <label>
+                  <input
+                    type="radio"
+                    name="output-mode"
+                    value="2x"
+                    checked={outputMode === "2x"}
+                    onChange={() => setOutputMode("2x")}
+                    disabled={!source || busy}
+                  />
+                  2x
+                </label>
+                <small>2x는 가로/세로를 2배로 키우되 최종 출력은 최대 {oversizeThreshold}MP로 제한합니다.</small>
+              </fieldset>
+
+              <fieldset className="export-card">
                 <legend>저장 형식</legend>
                 <label>
                   <input
@@ -728,7 +760,7 @@ export default function App() {
 
           {promptState ? (
             <section className="panel prompt-panel" role="alert">
-              <h2>대용량 이미지 선택 필요</h2>
+              <h2>대용량 이미지 출력 방식 선택</h2>
               <p>{promptState.decision?.message || `이 이미지는 ${oversizeThreshold}MP 기준을 초과합니다.`}</p>
               <div className="prompt-stats">
                 <span>{promptState.source.name}</span>
@@ -740,17 +772,13 @@ export default function App() {
                   className="button button-primary"
                   type="button"
                   data-action="keep-original"
-                  onClick={() => handleOversizeChoice(true)}
-                  disabled={!promptState.decision?.allowOriginal}
+                  onClick={() => handleOversizeChoice("original")}
                 >
-                  원본 해상도 유지
+                  Original로 계속
                 </button>
-                <button className="button" type="button" data-action="downscale" onClick={() => handleOversizeChoice(false)}>
-                  안정성을 위해 축소
+                <button className="button" type="button" data-action="downscale" onClick={() => handleOversizeChoice("2x")}>
+                  2x로 계속
                 </button>
-              {!promptState.decision?.allowOriginal ? (
-                <p className="prompt-warning">현재 가드레일 경로에서는 이 이미지의 원본 해상도 처리가 비활성화됩니다.</p>
-              ) : null}
               </div>
             </section>
           ) : null}
@@ -771,7 +799,7 @@ export default function App() {
               </div>
               {result ? (
                 <div className="render-meta">
-                  <span>{result.strategy === "original" ? "원본 해상도 저장" : "축소 해상도 저장"}</span>
+                  <span>{result.strategy === "original" ? "Original 출력" : result.strategy === "original-clamped" ? `${oversizeThreshold}MP로 조정된 Original 출력` : result.strategy === "2x" ? "2x 출력" : `${oversizeThreshold}MP로 조정된 2x 출력`}</span>
                   <span>{formatDimensionLabel(result.width, result.height)}</span>
                   <span>{result.usedWorker ? "워커 처리" : "메인 스레드 처리"}</span>
                   <span>{Math.round(result.timingMs)} ms</span>

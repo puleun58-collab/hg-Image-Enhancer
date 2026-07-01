@@ -28,7 +28,7 @@ export async function processImageRequest(
   const outputSizing = chooseOutputSizing(
     request.source.width,
     request.source.height,
-    request.preferOriginalSize,
+    request.outputMode,
   );
   const previewSizing = choosePreviewSizing(outputSizing.width, outputSizing.height);
   const drawable = await loadBitmapFromSource(request.source);
