@@ -1,6 +1,6 @@
 # Image Enhancer
 
-브라우저 안에서 이미지를 보정하고, `Original` 또는 `2x` 출력으로 전후 비교 후 PNG/JPG로 저장하는 V1 프로젝트다.
+브라우저 안에서 이미지를 보정하고, `Original` 또는 `2x 업스케일` 저장 해상도로 전후 비교 후 PNG/JPG로 저장하는 V1 프로젝트다.
 
 ## 배포 주소
 - 프로덕션: https://hg-image-enhancer.vercel.app
@@ -79,7 +79,7 @@ npm run qa:matrix
 │  ├─ types.ts                # 공용 타입 정의
 │  ├─ lib/
 │  │  ├─ capabilities.ts      # 브라우저 지원 판정과 capability 리포트
-│  │  ├─ image.ts             # 이미지 로드, 24MP 출력 제한, 2x sizing 정책
+│  │  ├─ image.ts             # 이미지 로드, 24MP 출력 제한, 2x 업스케일 sizing 정책
 │  │  ├─ enhance.ts           # 실제 보정 파이프라인과 처리 요청 조합
 │  │  ├─ export.ts            # PNG/JPG Blob 생성과 export 보조 로직
 │  │  ├─ *.test.ts            # 핵심 라이브러리 단위 테스트
@@ -153,11 +153,11 @@ npx playwright install chromium firefox
 
 ### 5) 대용량 이미지 업로드 후 진행이 막힘
 증상:
-- 24MP를 넘는 이미지 업로드 시 출력 방식 선택 패널이 표시되거나 최종 출력이 자동으로 clamp됨
+- 24MP를 넘는 이미지 업로드 시 출력 방식 선택 패널이 표시되거나 저장 해상도가 자동으로 clamp됨
 
 대응:
-- `Original`은 원본 해상도를 우선 사용하되, 최종 출력이 24MP를 넘으면 비율을 유지한 채 자동으로 24MP 이하로 줄인다.
-- `2x`는 가로/세로를 2배로 키우되, 최종 출력이 24MP를 넘으면 비율을 유지한 채 자동으로 24MP 이하로 줄인다.
+- `Original`은 원본 저장 해상도를 우선 사용하되, 최종 저장 해상도가 24MP를 넘으면 비율을 유지한 채 자동으로 24MP 이하로 줄인다.
+- `2x`는 저장 해상도를 가로/세로 2배로 업스케일하되, 최종 저장 해상도가 24MP를 넘으면 비율을 유지한 채 자동으로 24MP 이하로 줄인다.
 - 더 큰 이미지는 `fixtures/force-downscale-28mp.jpg`처럼 강제 clamp 경로를 타게 된다
 
 ### 6) 자동 QA 도중 실패했을 때
@@ -184,9 +184,10 @@ npm run build
 3. 데스크톱 Chromium 또는 데스크톱 Firefox에서 확인
 4. `fixtures/text-heavy.png` 업로드
 5. 슬라이더를 움직여 재처리 확인
-6. `Original` / `2x` 출력 모드 전환 확인
-7. `PNG 저장` / `JPG 저장` 버튼 확인
-8. `fixtures/oversize.png`와 `fixtures/force-downscale-28mp.jpg`로 24MP clamp 경로 확인
+6. `Original` / `2x 업스케일` 출력 모드 전환 확인
+7. 상태 문구가 저장 해상도 기준으로 바뀌고, `2x` 선택 시 해상도가 증가하는지 확인
+8. `PNG 저장` / `JPG 저장` 버튼 확인
+9. `fixtures/oversize.png`와 `fixtures/force-downscale-28mp.jpg`로 24MP clamp 경로 확인
 ## 참고
 - `qa:matrix`는 자동 검증 결과를 누적 산출물로 남긴다.
 - `.gjc/` 폴더는 GJC 워크플로 상태/계획/증적용 내부 폴더다.

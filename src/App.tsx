@@ -591,13 +591,13 @@ export default function App() {
 
     switch (result.strategy) {
       case "original":
-        return `Original 출력으로 준비되었습니다: ${formatDimensionLabel(result.width, result.height)}.`;
+        return `Original 저장 해상도로 준비되었습니다: ${formatDimensionLabel(result.width, result.height)}.`;
       case "original-clamped":
-        return `Original 출력을 ${oversizeThreshold}MP 한도로 조정했습니다: ${formatDimensionLabel(result.width, result.height)}.`;
+        return `Original 저장 해상도를 ${oversizeThreshold}MP 한도로 조정했습니다: ${formatDimensionLabel(result.width, result.height)}.`;
       case "2x":
-        return `2x 출력으로 준비되었습니다: ${formatDimensionLabel(result.width, result.height)}.`;
+        return `2x 업스케일 저장 해상도로 준비되었습니다: ${formatDimensionLabel(result.width, result.height)}.`;
       default:
-        return `2x 출력을 ${oversizeThreshold}MP 한도로 조정했습니다: ${formatDimensionLabel(result.width, result.height)}.`;
+        return `2x 업스케일 저장 해상도를 ${oversizeThreshold}MP 한도로 조정했습니다: ${formatDimensionLabel(result.width, result.height)}.`;
     }
   }, [exportFormat, jpegQuality, oversizeThreshold, result]);
 
@@ -708,9 +708,9 @@ export default function App() {
                     onChange={() => setOutputMode("2x")}
                     disabled={!source || busy}
                   />
-                  2x
+                  2x 업스케일
                 </label>
-                <small>2x는 가로/세로를 2배로 키우되 최종 출력은 최대 {oversizeThreshold}MP로 제한합니다.</small>
+                <small>2x는 저장 해상도를 가로/세로 2배로 업스케일합니다. 비교 미리보기는 화면 크기에 맞춰 축소되어 보일 수 있으며, 저장 결과는 최대 {oversizeThreshold}MP로 제한됩니다.</small>
               </fieldset>
 
               <fieldset className="export-card">
@@ -777,7 +777,7 @@ export default function App() {
                   Original로 계속
                 </button>
                 <button className="button" type="button" data-action="downscale" onClick={() => handleOversizeChoice("2x")}>
-                  2x로 계속
+                  2x 업스케일로 계속
                 </button>
               </div>
             </section>
@@ -799,7 +799,7 @@ export default function App() {
               </div>
               {result ? (
                 <div className="render-meta">
-                  <span>{result.strategy === "original" ? "Original 출력" : result.strategy === "original-clamped" ? `${oversizeThreshold}MP로 조정된 Original 출력` : result.strategy === "2x" ? "2x 출력" : `${oversizeThreshold}MP로 조정된 2x 출력`}</span>
+                  <span>{result.strategy === "original" ? "Original 저장 해상도" : result.strategy === "original-clamped" ? `${oversizeThreshold}MP로 조정된 Original 저장 해상도` : result.strategy === "2x" ? "2x 업스케일 저장 해상도" : `${oversizeThreshold}MP로 조정된 2x 업스케일 저장 해상도`}</span>
                   <span>{formatDimensionLabel(result.width, result.height)}</span>
                   <span>{result.usedWorker ? "워커 처리" : "메인 스레드 처리"}</span>
                   <span>{Math.round(result.timingMs)} ms</span>
