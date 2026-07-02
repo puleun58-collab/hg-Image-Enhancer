@@ -1,6 +1,6 @@
 # Image Enhancer
 
-브라우저 안에서 이미지를 보정하고, `Original` 또는 `2x 업스케일` 결과로 전후 비교 후 PNG/JPG로 저장하는 V1 프로젝트다. `2x 업스케일`은 단순 확대가 아니라 원본을 먼저 보정한 뒤 업스케일 전용 후처리를 거친 결과를 만든다.
+브라우저 안에서 이미지를 보정하고, `Original`, `2x 업스케일`, `4x 업스케일` 결과로 전후 비교 후 PNG/JPG로 저장하는 V1 프로젝트다. `2x 업스케일`은 원본을 먼저 보정한 뒤 업스케일 전용 후처리를 거친 결과를 만들고, `4x 업스케일`은 데스크톱 Chromium에서만 제공되는 모델 기반 초해상도 복원 경로를 사용한다. UI는 화이트톤 배경과 네이비 포인트를 기준으로 정리했다.
 
 ## 배포 주소
 - 프로덕션: https://hg-image-enhancer.vercel.app
@@ -11,6 +11,7 @@
 - npm 10+
 - 자동 브라우저 검증까지 실행할 경우 Playwright 브라우저 설치 필요
 - V1 공식 지원 범위는 데스크톱 Chromium / 데스크톱 Firefox다.
+- `4x 업스케일`은 현재 데스크톱 Chromium에서만 지원한다.
 - 모바일 브라우저에서는 동작하더라도 출시 지원 범위로 보지 않는다.
 
 ## 설치 방법
@@ -75,14 +76,15 @@ npm run qa:matrix
 ├─ src/
 │  ├─ App.tsx                 # 메인 UI, 업로드/강도/출력 모드/비교/저장 흐름
 │  ├─ main.tsx                # React 진입점
-│  ├─ styles.css              # 앱 스타일
+│  ├─ styles.css              # 화이트톤 배경 + 네이비 포인트 앱 스타일
 │  ├─ types.ts                # 공용 타입 정의
 │  ├─ lib/
 │  │  ├─ capabilities.ts      # 브라우저 지원 판정과 capability 리포트
-│  │  ├─ image.ts             # 이미지 로드, 24MP 출력 제한, 2x 업스케일 sizing 정책
-│  │  ├─ enhance.ts           # 보정 파이프라인과 품질 향상형 2x 업스케일 처리
+│  │  ├─ image.ts             # 이미지 로드, 24MP 출력 제한, 2x/4x 업스케일 sizing 정책
+│  │  ├─ enhance.ts           # 보정 파이프라인과 2x/4x 업스케일 처리
 │  │  ├─ export.ts            # PNG/JPG Blob 생성과 export 보조 로직
 │  │  ├─ *.test.ts            # 핵심 라이브러리 단위 테스트
+│  │  ├─ srModel.ts           # 4x 모델 로딩, WebGPU/WASM fallback, 타일 기반 초해상도 복원
 │  └─ workers/
 │     └─ enhanceWorker.ts     # 워커 기반 처리 경로
 ├─ fixtures/
@@ -158,6 +160,7 @@ npx playwright install chromium firefox
 대응:
 - `Original`은 원본 크기를 우선 사용하되, 최종 결과가 24MP를 넘으면 비율을 유지한 채 자동으로 24MP 이하로 줄인다.
 - `2x`는 가로/세로를 2배로 업스케일하되, 단순 확대가 아니라 원본 보정 뒤 업스케일 전용 후처리를 적용하며, 최종 결과가 24MP를 넘으면 비율을 유지한 채 자동으로 24MP 이하로 줄인다.
+- `4x`는 데스크톱 Chromium에서만 지원하며, 모델 기반 초해상도 복원을 사용한다. 원본이 1.5MP를 넘으면 전체 4배를 유지할 수 없으므로 UI에서 비활성화된다.
 - 더 큰 이미지는 `fixtures/force-downscale-28mp.jpg`처럼 강제 clamp 경로를 타게 된다
 
 ### 6) 자동 QA 도중 실패했을 때
@@ -184,11 +187,13 @@ npm run build
 3. 데스크톱 Chromium 또는 데스크톱 Firefox에서 확인
 4. `fixtures/text-heavy.png` 업로드
 5. 슬라이더를 움직여 재처리 확인
-6. `Original` / `2x 업스케일` 출력 모드 전환 확인
-7. 상태 문구가 결과 크기 기준으로 바뀌고, `2x` 선택 시 해상도가 증가하는지 확인
-8. `PNG 저장` / `JPG 저장` 버튼 확인
-9. `fixtures/oversize.png`와 `fixtures/force-downscale-28mp.jpg`로 24MP clamp 경로 확인
-10. `2x 업스케일` 결과가 단순히 커지기만 하지 않고, `Original` 대비 가장자리와 대비가 과하게 뭉개지지 않는지 확인
+6. `Original` / `2x 업스케일` / `4x 업스케일` 출력 모드 전환 확인
+7. `2x` 선택 시 해상도가 증가하고, `4x`는 작은 원본에서만 활성화되는지 확인
+8. 상태 문구가 결과 크기 기준으로 바뀌는지 확인
+9. `PNG 저장` / `JPG 저장` 버튼 확인
+10. `fixtures/oversize.png`와 `fixtures/force-downscale-28mp.jpg`로 24MP clamp 경로 확인
+11. `2x 업스케일` 결과가 단순히 커지기만 하지 않고, `Original` 대비 가장자리와 대비가 과하게 뭉개지지 않는지 확인
+12. `4x 업스케일`은 데스크톱 Chromium에서만 활성화되고, 작은 원본에서는 실제 4배 결과가 생성되는지 확인
 ## 참고
 - `qa:matrix`는 자동 검증 결과를 누적 산출물로 남긴다.
 - `.gjc/` 폴더는 GJC 워크플로 상태/계획/증적용 내부 폴더다.

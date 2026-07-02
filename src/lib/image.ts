@@ -7,10 +7,12 @@ import type {
 
 export const OUTPUT_MAX_MEGAPIXELS = 24;
 export const OUTPUT_MAX_PIXEL_COUNT = OUTPUT_MAX_MEGAPIXELS * 1_000_000;
+export const FOUR_X_MAX_MEGAPIXELS = OUTPUT_MAX_MEGAPIXELS / 16;
+export const FOUR_X_MAX_PIXEL_COUNT = FOUR_X_MAX_MEGAPIXELS * 1_000_000;
 export const PREVIEW_MAX_EDGE = 1600;
 
 export interface OutputSizing {
-  strategy: "original" | "original-clamped" | "2x" | "2x-clamped";
+  strategy: "original" | "original-clamped" | "2x" | "2x-clamped" | "4x" | "4x-clamped";
   width: number;
   height: number;
   scale: number;
@@ -46,18 +48,22 @@ export function isOversize(width: number, height: number): boolean {
   return width * height > OUTPUT_MAX_PIXEL_COUNT;
 }
 
+export function canUseFourXSource(width: number, height: number): boolean {
+  return width * height <= FOUR_X_MAX_PIXEL_COUNT;
+}
+
 export function getOversizeDecision(
   source: Pick<ImageSource, "width" | "height" | "megapixels" | "estimatedRgbaBytes">,
 ): OversizeDecision {
   if (!isOversize(source.width, source.height)) {
     return {
-      message: `원본 해상도가 V1의 ${OUTPUT_MAX_MEGAPIXELS}MP 처리 기준 이내입니다. Original 또는 2x 업스케일 중에서 원하는 결과 크기를 선택하세요.`,
+      message: `원본 해상도가 V1의 ${OUTPUT_MAX_MEGAPIXELS}MP 처리 기준 이내입니다. Original, 2x 업스케일, 4x 업스케일 중에서 원하는 결과 크기를 선택하세요. 4x 업스케일은 ${FOUR_X_MAX_MEGAPIXELS.toFixed(1)}MP 이하 원본에서만 완전한 4배 결과를 유지합니다.`,
     };
   }
 
   return {
     message:
-      `원본 해상도는 ${source.megapixels.toFixed(1)}MP입니다. Original은 현재 크기를 유지하되 최대 ${OUTPUT_MAX_MEGAPIXELS.toFixed(1)}MP로 제한하고, 2x 업스케일은 가로/세로를 2배로 키운 뒤 ${OUTPUT_MAX_MEGAPIXELS.toFixed(1)}MP 이하로 제한합니다.`,
+      `원본 해상도는 ${source.megapixels.toFixed(1)}MP입니다. Original은 현재 크기를 유지하되 최대 ${OUTPUT_MAX_MEGAPIXELS.toFixed(1)}MP로 제한하고, 2x 업스케일은 가로/세로를 2배로 키운 뒤 ${OUTPUT_MAX_MEGAPIXELS.toFixed(1)}MP 이하로 제한합니다. 4x 업스케일은 ${FOUR_X_MAX_MEGAPIXELS.toFixed(1)}MP 이하 원본에서만 완전한 4배를 유지합니다.`,
   };
 }
 
@@ -89,22 +95,26 @@ export function revokeProcessedImageSet(result: ProcessedImageSet | undefined): 
 export function chooseOutputSizing(
   width: number,
   height: number,
-  outputMode: "original" | "2x",
+  outputMode: "original" | "2x" | "4x",
 ): OutputSizing {
-  const targetScale = outputMode === "2x" ? 2 : 1;
+  const targetScale = outputMode === "4x" ? 4 : outputMode === "2x" ? 2 : 1;
   const targetWidth = width * targetScale;
   const targetHeight = height * targetScale;
   const fitted = fitWithinPixelLimit(targetWidth, targetHeight, OUTPUT_MAX_PIXEL_COUNT);
 
   return {
     strategy:
-      outputMode === "2x"
+      outputMode === "4x"
         ? fitted.clamped
-          ? "2x-clamped"
-          : "2x"
-        : fitted.clamped
-          ? "original-clamped"
-          : "original",
+          ? "4x-clamped"
+          : "4x"
+        : outputMode === "2x"
+          ? fitted.clamped
+            ? "2x-clamped"
+            : "2x"
+          : fitted.clamped
+            ? "original-clamped"
+            : "original",
     width: fitted.width,
     height: fitted.height,
     scale: fitted.width / width,

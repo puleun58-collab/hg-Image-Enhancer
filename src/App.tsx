@@ -18,7 +18,9 @@ import type {
 
 import { getCapabilityReport } from "./lib/capabilities";
 import {
+  FOUR_X_MAX_MEGAPIXELS,
   OUTPUT_MAX_MEGAPIXELS,
+  canUseFourXSource,
   clampStrength as clampStrengthValue,
   getOversizeDecision,
   inspectImageFile,
@@ -26,6 +28,7 @@ import {
 } from "./lib/image";
 import { DEFAULT_JPEG_QUALITY } from "./lib/export";
 import { processImageRequest } from "./lib/enhance";
+import { getFourXSupport } from "./lib/srModel";
 
 type ExportFormat = "image/png" | "image/jpeg";
 
@@ -426,8 +429,13 @@ export default function App() {
         const nextSource = await createImageSource(file);
         const oversizeDecision = getOversizeDecision(nextSource);
         const isOversize = nextSource.megapixels > oversizeThreshold;
+        const nextOutputMode =
+          outputMode === "4x" && !canUseFourXSource(nextSource.width, nextSource.height)
+            ? "original"
+            : outputMode;
 
         if (isOversize) {
+          setOutputMode(nextOutputMode);
           replacePendingSource({
             source: nextSource,
             decision: oversizeDecision,
@@ -436,9 +444,10 @@ export default function App() {
           return;
         }
 
+        setOutputMode(nextOutputMode);
         replaceSource(nextSource);
         setPendingSource(null);
-        await runProcess(nextSource, outputMode, strength, exportFormat);
+        await runProcess(nextSource, nextOutputMode, strength, exportFormat);
 
       } catch (error) {
         setPhase("error");
@@ -578,9 +587,23 @@ export default function App() {
       ["createImageBitmap", capabilities.hasCreateImageBitmap ? "사용 가능" : "없음"],
       ["OffscreenCanvas", capabilities.hasOffscreenCanvas ? "사용 가능" : "없음"],
       ["WebGL2", capabilities.hasWebGL2 ? "사용 가능" : "없음"],
+      ["WebGPU", capabilities.hasWebGPU ? "사용 가능" : "없음"],
     ],
     [capabilities],
   );
+
+  const fourXSupport = useMemo(() => getFourXSupport(capabilities), [capabilities]);
+  const fourXDisabledReason = useMemo(() => {
+    if (!fourXSupport.supported) {
+      return fourXSupport.reason;
+    }
+
+    if (source && !canUseFourXSource(source.width, source.height)) {
+      return `4x 업스케일은 ${FOUR_X_MAX_MEGAPIXELS.toFixed(1)}MP 이하 원본에서만 완전한 4배 결과를 유지합니다.`;
+    }
+
+    return null;
+  }, [capabilities, fourXSupport, source]);
 
   const statusMessage = useMemo(() => {
     if (!result) {
@@ -596,8 +619,12 @@ export default function App() {
         return `Original을 ${oversizeThreshold}MP 한도로 조정했습니다: ${formatDimensionLabel(result.width, result.height)}.`;
       case "2x":
         return `2x 업스케일로 준비되었습니다: ${formatDimensionLabel(result.width, result.height)}.`;
-      default:
+      case "2x-clamped":
         return `2x 업스케일을 ${oversizeThreshold}MP 한도로 조정했습니다: ${formatDimensionLabel(result.width, result.height)}.`;
+      case "4x":
+        return `4x 업스케일로 준비되었습니다: ${formatDimensionLabel(result.width, result.height)}.`;
+      default:
+        return `4x 업스케일을 ${oversizeThreshold}MP 한도로 조정했습니다: ${formatDimensionLabel(result.width, result.height)}.`;
     }
   }, [exportFormat, jpegQuality, oversizeThreshold, result]);
 
@@ -710,7 +737,19 @@ export default function App() {
                   />
                   2x 업스케일
                 </label>
-                <small>2x는 가로/세로를 2배로 업스케일합니다. 비교 미리보기는 화면 크기에 맞춰 축소되어 보일 수 있으며, 결과는 최대 {oversizeThreshold}MP로 제한됩니다.</small>
+                <label>
+                  <input
+                    type="radio"
+                    name="output-mode"
+                    value="4x"
+                    checked={outputMode === "4x"}
+                    onChange={() => setOutputMode("4x")}
+                    disabled={!source || busy || !!fourXDisabledReason}
+                  />
+                  4x 업스케일
+                </label>
+                <small>2x는 가로/세로를 2배로 업스케일합니다. 4x는 데스크톱 Chromium에서만 지원하며, 원본을 먼저 보정한 뒤 모델 기반 초해상도 복원을 적용합니다. 결과는 최대 {oversizeThreshold}MP로 제한됩니다.</small>
+                {fourXDisabledReason ? <small>{fourXDisabledReason}</small> : null}
               </fieldset>
 
               <fieldset className="export-card">
@@ -799,7 +838,7 @@ export default function App() {
               </div>
               {result ? (
                 <div className="render-meta">
-                  <span>{result.strategy === "original" ? "Original" : result.strategy === "original-clamped" ? `${oversizeThreshold}MP로 조정된 Original` : result.strategy === "2x" ? "2x 업스케일" : `${oversizeThreshold}MP로 조정된 2x 업스케일`}</span>
+                  <span>{result.strategy === "original" ? "Original" : result.strategy === "original-clamped" ? `${oversizeThreshold}MP로 조정된 Original` : result.strategy === "2x" ? "2x 업스케일" : result.strategy === "2x-clamped" ? `${oversizeThreshold}MP로 조정된 2x 업스케일` : result.strategy === "4x" ? "4x 업스케일" : `${oversizeThreshold}MP로 조정된 4x 업스케일`}</span>
                   <span>{formatDimensionLabel(result.width, result.height)}</span>
                   <span>{result.usedWorker ? "워커 처리" : "메인 스레드 처리"}</span>
                   <span>{Math.round(result.timingMs)} ms</span>

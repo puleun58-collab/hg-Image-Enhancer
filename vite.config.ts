@@ -11,6 +11,9 @@ export default defineConfig({
     host: "0.0.0.0",
     port: 4173,
   },
+  worker: {
+    format: "es",
+  },
   test: {
     environment: "node",
     include: ["src/**/*.test.ts"],

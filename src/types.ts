@@ -14,7 +14,7 @@ export type AppPhase =
   | "compatibility-blocked"
   | "error";
 
-export type OutputMode = "original" | "2x";
+export type OutputMode = "original" | "2x" | "4x";
 
 export interface CapabilityReport {
   bucket: BrowserBucket;
@@ -24,6 +24,7 @@ export interface CapabilityReport {
   hasCreateImageBitmap: boolean;
   hasOffscreenCanvas: boolean;
   hasWebGL2: boolean;
+  hasWebGPU: boolean;
   reason?: string;
 }
 
@@ -48,7 +49,7 @@ export interface RenderResult {
 export interface ProcessedImageSet {
   preview: RenderResult;
   export: RenderResult;
-  strategy: "original" | "original-clamped" | "2x" | "2x-clamped";
+  strategy: "original" | "original-clamped" | "2x" | "2x-clamped" | "4x" | "4x-clamped";
   width: number;
   height: number;
   previewScale: number;

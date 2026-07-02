@@ -6,6 +6,7 @@ import {
   clampStrength,
   loadBitmapFromSource,
 } from "./image";
+import { runFourXSuperResolution } from "./srModel";
 
 interface EnhanceProcessOptions {
   usedWorker: boolean;
@@ -36,14 +37,20 @@ export async function processImageRequest(
   try {
     const shouldUpscaleOutput =
       outputSizing.width > request.source.width || outputSizing.height > request.source.height;
-    const exportImage = shouldUpscaleOutput
-      ? upscaleEnhancedImageData(
+    const exportImage = request.outputMode === "4x" && shouldUpscaleOutput
+      ? await superResolveEnhancedImageData(
           renderEnhancedVariant(drawable, request.source.width, request.source.height, strength),
           outputSizing.width,
           outputSizing.height,
-          strength,
         )
-      : renderEnhancedVariant(drawable, outputSizing.width, outputSizing.height, strength);
+      : shouldUpscaleOutput
+        ? upscaleEnhancedImageData(
+            renderEnhancedVariant(drawable, request.source.width, request.source.height, strength),
+            outputSizing.width,
+            outputSizing.height,
+            strength,
+          )
+        : renderEnhancedVariant(drawable, outputSizing.width, outputSizing.height, strength);
     const previewImage =
       previewSizing.width === outputSizing.width && previewSizing.height === outputSizing.height
         ? cloneImageData(exportImage)
@@ -146,6 +153,19 @@ export function upscaleEnhancedImageData(
 ): ImageData {
   const resized = resizeImageData(source, width, height, "upscale");
   return refineUpscaledImageData(resized, strength);
+}
+
+export async function superResolveEnhancedImageData(
+  source: ImageData,
+  width: number,
+  height: number,
+): Promise<ImageData> {
+  const upscaled = await runFourXSuperResolution(source);
+  if (upscaled.width === width && upscaled.height === height) {
+    return upscaled;
+  }
+
+  return resizeImageData(upscaled, width, height, "preview");
 }
 
 export function refineUpscaledImageData(source: ImageData, strength: number): ImageData {

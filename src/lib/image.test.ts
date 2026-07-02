@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  FOUR_X_MAX_MEGAPIXELS,
   OUTPUT_MAX_MEGAPIXELS,
+  canUseFourXSource,
   chooseOutputSizing,
   choosePreviewSizing,
   clampStrength,
@@ -28,6 +30,7 @@ describe("image helpers", () => {
     expect(decision.message).toContain(`${OUTPUT_MAX_MEGAPIXELS.toFixed(1)}MP`);
     expect(decision.message).toContain("Original");
     expect(decision.message).toContain("2x");
+    expect(decision.message).toContain("4x");
   });
 
   it("keeps original output within the 24MP cap", () => {
@@ -50,6 +53,22 @@ describe("image helpers", () => {
     expect(computeMegapixels(clamped.width, clamped.height)).toBeLessThanOrEqual(OUTPUT_MAX_MEGAPIXELS + 0.01);
     expect(clamped.scale).toBeGreaterThan(1);
     expect(clamped.scale).toBeLessThan(2);
+  });
+
+  it("allows full 4x only for sources within the 24MP cap", () => {
+    const exactFourX = chooseOutputSizing(1000, 1000, "4x");
+    const clampedFourX = chooseOutputSizing(1600, 1200, "4x");
+
+    expect(canUseFourXSource(1000, 1000)).toBe(true);
+    expect(canUseFourXSource(1600, 1200)).toBe(false);
+    expect(FOUR_X_MAX_MEGAPIXELS).toBe(1.5);
+    expect(exactFourX.strategy).toBe("4x");
+    expect(exactFourX.width).toBe(4000);
+    expect(exactFourX.height).toBe(4000);
+    expect(clampedFourX.strategy).toBe("4x-clamped");
+    expect(computeMegapixels(clampedFourX.width, clampedFourX.height)).toBeLessThanOrEqual(OUTPUT_MAX_MEGAPIXELS + 0.01);
+    expect(clampedFourX.scale).toBeGreaterThan(1);
+    expect(clampedFourX.scale).toBeLessThan(4);
   });
 
   it("limits previews to the configured max edge", () => {

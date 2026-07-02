@@ -106,6 +106,7 @@ export function getCapabilityReport(
   const hasWorker = typeof runtime.Worker !== "undefined";
   const hasCreateImageBitmap = typeof runtime.createImageBitmap === "function";
   const hasOffscreenCanvas = typeof runtime.OffscreenCanvas !== "undefined";
+  const hasWebGPU = typeof runtime.navigator !== "undefined" && "gpu" in runtime.navigator;
   const hasWebGL2 = (() => {
     if (typeof runtime.document === "undefined") {
       return false;
@@ -139,6 +140,7 @@ export function getCapabilityReport(
     hasCreateImageBitmap,
     hasOffscreenCanvas,
     hasWebGL2,
+    hasWebGPU,
     reason,
   };
 }
