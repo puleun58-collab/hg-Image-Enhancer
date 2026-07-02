@@ -34,7 +34,16 @@ export async function processImageRequest(
   const drawable = await loadBitmapFromSource(request.source);
 
   try {
-    const exportImage = renderEnhancedVariant(drawable, outputSizing.width, outputSizing.height, strength);
+    const shouldUpscaleOutput =
+      outputSizing.width > request.source.width || outputSizing.height > request.source.height;
+    const exportImage = shouldUpscaleOutput
+      ? upscaleEnhancedImageData(
+          renderEnhancedVariant(drawable, request.source.width, request.source.height, strength),
+          outputSizing.width,
+          outputSizing.height,
+          strength,
+        )
+      : renderEnhancedVariant(drawable, outputSizing.width, outputSizing.height, strength);
     const previewImage =
       previewSizing.width === outputSizing.width && previewSizing.height === outputSizing.height
         ? cloneImageData(exportImage)
@@ -123,6 +132,54 @@ export function enhanceImageData(source: ImageData, strength: number): ImageData
     output[index] = clampChannel(luminance + (sharpenedR - luminance) * saturationAmount);
     output[index + 1] = clampChannel(luminance + (sharpenedG - luminance) * saturationAmount);
     output[index + 2] = clampChannel(luminance + (sharpenedB - luminance) * saturationAmount);
+    output[index + 3] = source.data[index + 3];
+  }
+
+  return new ImageData(output, source.width, source.height);
+}
+
+export function upscaleEnhancedImageData(
+  source: ImageData,
+  width: number,
+  height: number,
+  strength: number,
+): ImageData {
+  const resized = resizeImageData(source, width, height, "upscale");
+  return refineUpscaledImageData(resized, strength);
+}
+
+export function refineUpscaledImageData(source: ImageData, strength: number): ImageData {
+  const normalizedStrength = clampStrength(strength);
+  const buffers = createPixelBuffers(source);
+  boxBlurRgb(buffers.source, source.width, source.height, 1, buffers.sharpenBase);
+  boxBlurRgb(buffers.source, source.width, source.height, 3, buffers.atmosphere);
+
+  const sharpenAmount = 0.2 + normalizedStrength * 0.28;
+  const contrastAmount = 0.08 + normalizedStrength * 0.14;
+  const saturationAmount = 1 + normalizedStrength * 0.03;
+  const output = new Uint8ClampedArray(source.data.length);
+
+  for (let index = 0; index < output.length; index += 4) {
+    const refinedR = clampChannel(
+      buffers.source[index] +
+        (buffers.source[index] - buffers.sharpenBase[index]) * sharpenAmount +
+        (buffers.source[index] - buffers.atmosphere[index]) * contrastAmount,
+    );
+    const refinedG = clampChannel(
+      buffers.source[index + 1] +
+        (buffers.source[index + 1] - buffers.sharpenBase[index + 1]) * sharpenAmount +
+        (buffers.source[index + 1] - buffers.atmosphere[index + 1]) * contrastAmount,
+    );
+    const refinedB = clampChannel(
+      buffers.source[index + 2] +
+        (buffers.source[index + 2] - buffers.sharpenBase[index + 2]) * sharpenAmount +
+        (buffers.source[index + 2] - buffers.atmosphere[index + 2]) * contrastAmount,
+    );
+    const luminance = refinedR * 0.2126 + refinedG * 0.7152 + refinedB * 0.0722;
+
+    output[index] = clampChannel(luminance + (refinedR - luminance) * saturationAmount);
+    output[index + 1] = clampChannel(luminance + (refinedG - luminance) * saturationAmount);
+    output[index + 2] = clampChannel(luminance + (refinedB - luminance) * saturationAmount);
     output[index + 3] = source.data[index + 3];
   }
 
@@ -292,7 +349,12 @@ function drawDrawableToImageData(
   throw new Error("보정 처리에 필요한 Canvas 2D를 사용할 수 없습니다.");
 }
 
-function resizeImageData(imageData: ImageData, width: number, height: number): ImageData {
+function resizeImageData(
+  imageData: ImageData,
+  width: number,
+  height: number,
+  mode: "preview" | "upscale" = "preview",
+): ImageData {
   if (imageData.width === width && imageData.height === height) {
     return cloneImageData(imageData);
   }
@@ -310,6 +372,7 @@ function resizeImageData(imageData: ImageData, width: number, height: number): I
     if (!outputContext) {
       throw new Error("미리보기 축소에 필요한 Canvas 2D를 사용할 수 없습니다.");
     }
+    configureResizeContext(outputContext, mode);
     outputContext.drawImage(sourceCanvas, 0, 0, width, height);
     return outputContext.getImageData(0, 0, width, height);
   }
@@ -331,6 +394,7 @@ function resizeImageData(imageData: ImageData, width: number, height: number): I
     if (!outputContext) {
       throw new Error("미리보기 축소에 필요한 Canvas 2D를 사용할 수 없습니다.");
     }
+    configureResizeContext(outputContext, mode);
     outputContext.drawImage(sourceCanvas, 0, 0, width, height);
     return outputContext.getImageData(0, 0, width, height);
   }
@@ -340,6 +404,14 @@ function resizeImageData(imageData: ImageData, width: number, height: number): I
 
 function cloneImageData(imageData: ImageData): ImageData {
   return new ImageData(new Uint8ClampedArray(imageData.data), imageData.width, imageData.height);
+}
+
+function configureResizeContext(
+  context: OffscreenCanvasRenderingContext2D | CanvasRenderingContext2D,
+  mode: "preview" | "upscale",
+) {
+  context.imageSmoothingEnabled = true;
+  context.imageSmoothingQuality = mode === "upscale" ? "high" : "medium";
 }
 
 function clampIndex(value: number, limit: number): number {

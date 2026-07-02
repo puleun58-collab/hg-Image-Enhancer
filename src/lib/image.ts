@@ -51,13 +51,13 @@ export function getOversizeDecision(
 ): OversizeDecision {
   if (!isOversize(source.width, source.height)) {
     return {
-      message: `원본 해상도가 V1의 ${OUTPUT_MAX_MEGAPIXELS}MP 처리 기준 이내입니다. Original 또는 2x 업스케일 중에서 원하는 저장 해상도를 선택하세요.`,
+      message: `원본 해상도가 V1의 ${OUTPUT_MAX_MEGAPIXELS}MP 처리 기준 이내입니다. Original 또는 2x 업스케일 중에서 원하는 결과 크기를 선택하세요.`,
     };
   }
 
   return {
     message:
-      `원본 해상도는 ${source.megapixels.toFixed(1)}MP입니다. Original은 현재 저장 해상도를 유지하되 최대 ${OUTPUT_MAX_MEGAPIXELS.toFixed(1)}MP로 제한하고, 2x 업스케일은 저장 해상도를 가로/세로 2배로 키운 뒤 ${OUTPUT_MAX_MEGAPIXELS.toFixed(1)}MP 이하로 제한합니다.`,
+      `원본 해상도는 ${source.megapixels.toFixed(1)}MP입니다. Original은 현재 크기를 유지하되 최대 ${OUTPUT_MAX_MEGAPIXELS.toFixed(1)}MP로 제한하고, 2x 업스케일은 가로/세로를 2배로 키운 뒤 ${OUTPUT_MAX_MEGAPIXELS.toFixed(1)}MP 이하로 제한합니다.`,
   };
 }
 

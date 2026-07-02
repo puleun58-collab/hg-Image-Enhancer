@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
 
-import { enhanceImageData } from "./enhance";
+import { enhanceImageData, refineUpscaledImageData } from "./enhance";
 
 class TestImageData {
   data: Uint8ClampedArray;
@@ -68,5 +68,32 @@ describe("enhanceImageData", () => {
 
     expect(result.data[center]).toBeGreaterThan(180);
     expect(result.data[center] - result.data[corner]).toBeGreaterThan(120);
+  });
+});
+
+describe("refineUpscaledImageData", () => {
+  it("boosts edge contrast for upscaled imagery without changing dimensions", () => {
+    const source = createImageData(5, 5, (x) => {
+      if (x <= 1) {
+        return [88, 88, 88, 255];
+      }
+      if (x === 2) {
+        return [124, 124, 124, 255];
+      }
+      return [164, 164, 164, 255];
+    });
+
+    const result = refineUpscaledImageData(source, 0.9);
+    const left = (2 * 5 + 1) * 4;
+    const edge = (2 * 5 + 2) * 4;
+    const right = (2 * 5 + 3) * 4;
+    const beforeContrast = source.data[right] - source.data[left];
+    const afterContrast = result.data[right] - result.data[left];
+
+    expect(result.width).toBe(5);
+    expect(result.height).toBe(5);
+    expect(afterContrast).toBeGreaterThan(beforeContrast);
+    expect(result.data[right]).toBeGreaterThan(source.data[right]);
+    expect(result.data[edge + 3]).toBe(255);
   });
 });
