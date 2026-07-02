@@ -3,10 +3,10 @@
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #173a6a;
+  color: #172033;
   background:
-    radial-gradient(circle at top, rgba(37, 99, 235, 0.1), transparent 32%),
-    linear-gradient(180deg, #f8fbff 0%, #eef4ff 100%);
+    radial-gradient(circle at top, rgba(99, 102, 241, 0.12), transparent 34%),
+    linear-gradient(180deg, #f3f5ff 0%, #edf2ff 100%);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -55,19 +55,19 @@ img {
 }
 
 .app-shell {
-  width: min(1120px, calc(100% - 24px));
+  width: min(1140px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 24px 0 48px;
+  padding: 44px 0 56px;
   display: grid;
-  gap: 16px;
+  gap: 20px;
 }
 
 .panel {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(21, 49, 104, 0.1);
-  border-radius: 20px;
-  box-shadow: 0 18px 40px rgba(18, 38, 77, 0.08);
-  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(191, 203, 235, 0.68);
+  border-radius: 28px;
+  box-shadow: 0 24px 60px rgba(86, 103, 155, 0.12);
+  backdrop-filter: blur(10px);
 }
 
 .hero-panel,
@@ -77,25 +77,32 @@ img {
 .error-panel,
 .blocked-panel,
 .compare-panel {
-  padding: 20px;
+  padding: 28px 30px;
 }
 
 .hero-panel {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 16px;
+  gap: 20px;
   align-items: start;
 }
 
 .eyebrow {
-  margin: 0 0 8px;
-  font-size: 0.82rem;
-  letter-spacing: 0.12em;
+  margin: 0 0 10px;
+  font-size: 0.92rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #2563eb;
+  color: #4f46e5;
 }
 
-.hero-panel h1,
+.hero-panel h1 {
+  margin: 0;
+  font-size: clamp(2.5rem, 5vw, 4.25rem);
+  line-height: 0.96;
+  letter-spacing: -0.04em;
+  color: #172033;
+}
+
 .summary-panel h2,
 .control-panel h2,
 .prompt-panel h2,
@@ -103,7 +110,7 @@ img {
 .blocked-panel h2,
 .compare-panel h2 {
   margin: 0;
-  font-size: clamp(1.3rem, 2vw, 2rem);
+  font-size: clamp(1.35rem, 2.1vw, 2rem);
   color: #2563eb;
 }
 
@@ -115,16 +122,16 @@ img {
 .blocked-panel p,
 .compare-header p,
 .status-row p {
-  margin: 8px 0 0;
-  color: #4d607f;
+  margin: 10px 0 0;
+  color: #5d6a82;
 }
 
 .capability-pill {
-  min-width: 180px;
-  padding: 14px 16px;
-  border-radius: 16px;
-  border: 1px solid rgba(37, 99, 235, 0.16);
-  background: linear-gradient(180deg, rgba(245, 249, 255, 0.98) 0%, rgba(232, 241, 255, 0.96) 100%);
+  min-width: 188px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  border: 1px solid rgba(191, 203, 235, 0.9);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(244, 247, 255, 0.98) 100%);
   display: grid;
   gap: 4px;
 }
@@ -139,7 +146,7 @@ img {
 }
 
 .capability-pill.is-supported {
-  border-color: rgba(37, 99, 235, 0.28);
+  border-color: rgba(99, 102, 241, 0.28);
 }
 
 .capability-pill.is-blocked {
@@ -161,8 +168,8 @@ img {
   border-radius: 999px;
   font-size: 0.88rem;
   text-transform: capitalize;
-  background: rgba(37, 99, 235, 0.1);
-  color: #1d4ed8;
+  background: rgba(99, 102, 241, 0.08);
+  color: #4338ca;
   white-space: nowrap;
 }
 
@@ -192,7 +199,7 @@ img {
 .capability-row {
   padding: 14px;
   border-radius: 16px;
-  background: rgba(239, 245, 255, 0.98);
+  background: rgba(245, 247, 255, 0.98);
 }
 
 .capability-row dt {
@@ -207,9 +214,9 @@ img {
 
 .button {
   appearance: none;
-  border: 1px solid rgba(37, 99, 235, 0.2);
+  border: 1px solid rgba(201, 209, 230, 0.96);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.98);
   color: inherit;
   min-height: 44px;
   padding: 0 16px;
@@ -218,9 +225,9 @@ img {
 
 .button:hover:enabled,
 .button:focus-visible:enabled {
-  background: rgba(233, 242, 255, 0.98);
-  border-color: rgba(37, 99, 235, 0.42);
-  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.12);
+  background: rgba(245, 247, 255, 1);
+  border-color: rgba(99, 102, 241, 0.34);
+  box-shadow: 0 10px 24px rgba(99, 102, 241, 0.12);
 }
 
 .button:active:enabled {
@@ -233,7 +240,7 @@ img {
 }
 
 .button-primary {
-  background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+  background: linear-gradient(180deg, #5b5ce6 0%, #4f46e5 100%);
   border-color: transparent;
   color: #f8fbff;
   font-weight: 700;
@@ -252,8 +259,8 @@ img {
   gap: 10px;
   padding: 16px;
   border-radius: 18px;
-  background: rgba(245, 248, 255, 0.98);
-  border: 1px solid rgba(37, 99, 235, 0.12);
+  background: rgba(247, 249, 255, 0.98);
+  border: 1px solid rgba(220, 226, 243, 0.92);
 }
 
 .slider-label-row {
@@ -310,8 +317,8 @@ img {
 .render-meta span {
   padding: 8px 10px;
   border-radius: 999px;
-  background: rgba(232, 242, 255, 0.98);
-  color: #1e40af;
+  background: rgba(241, 244, 255, 1);
+  color: #4338ca;
   font-size: 0.9rem;
 }
 
@@ -341,9 +348,9 @@ img {
   border-radius: 22px;
   overflow: hidden;
   background:
-    linear-gradient(45deg, rgba(37, 99, 235, 0.06) 25%, transparent 25%, transparent 75%, rgba(37, 99, 235, 0.06) 75%),
-    linear-gradient(45deg, rgba(37, 99, 235, 0.06) 25%, transparent 25%, transparent 75%, rgba(37, 99, 235, 0.06) 75%),
-    #f3f7ff;
+    linear-gradient(45deg, rgba(99, 102, 241, 0.05) 25%, transparent 25%, transparent 75%, rgba(99, 102, 241, 0.05) 75%),
+    linear-gradient(45deg, rgba(99, 102, 241, 0.05) 25%, transparent 25%, transparent 75%, rgba(99, 102, 241, 0.05) 75%),
+    #f6f8ff;
   background-size: 28px 28px;
   background-position: 0 0, 14px 14px;
   touch-action: none;
@@ -386,8 +393,8 @@ img {
   position: absolute;
   inset: 0 0 0 -1px;
   width: 2px;
-  background: rgba(37, 99, 235, 0.92);
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9);
+  background: rgba(99, 102, 241, 0.9);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.96);
 }
 
 .compare-handle span {
@@ -398,9 +405,9 @@ img {
   height: 46px;
   transform: translate(-50%, -50%);
   border-radius: 999px;
-  border: 2px solid rgba(37, 99, 235, 0.92);
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.16);
+  border: 2px solid rgba(99, 102, 241, 0.92);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 10px 24px rgba(99, 102, 241, 0.16);
 }
 
 .compare-handle span::before,
@@ -410,8 +417,8 @@ img {
   top: 50%;
   width: 8px;
   height: 8px;
-  border-top: 2px solid #2563eb;
-  border-right: 2px solid #2563eb;
+  border-top: 2px solid #4f46e5;
+  border-right: 2px solid #4f46e5;
 }
 
 .compare-handle span::before {
