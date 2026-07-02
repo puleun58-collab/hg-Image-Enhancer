@@ -86,6 +86,10 @@ img {
   gap: 20px;
   align-items: start;
 }
+.hero-panel > div:first-child {
+  min-width: 0;
+}
+
 
 .eyebrow {
   margin: 0 0 10px;
@@ -97,9 +101,9 @@ img {
 
 .hero-panel h1 {
   margin: 0;
-  font-size: clamp(2.1rem, 4.2vw, 3.6rem);
-  line-height: 1;
-  letter-spacing: -0.04em;
+  font-size: clamp(1.85rem, 3vw, 2.7rem);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
   color: #172033;
   white-space: nowrap;
 }
