@@ -128,8 +128,8 @@ img {
 }
 
 .capability-pill {
-  min-width: 188px;
-  padding: 16px 18px;
+  min-width: 176px;
+  padding: 14px 16px;
   border-radius: 18px;
   border: 1px solid rgba(191, 203, 235, 0.9);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(244, 247, 255, 0.98) 100%);
@@ -139,11 +139,13 @@ img {
 
 .capability-pill span {
   color: #5a6f94;
-  font-size: 0.88rem;
+  font-size: 0.8rem;
 }
 
 .capability-pill strong {
   text-transform: capitalize;
+  font-size: 0.96rem;
+  line-height: 1.2;
 }
 
 .capability-pill.is-supported {
