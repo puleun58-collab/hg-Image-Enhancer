@@ -405,8 +405,14 @@ export default function App() {
 
   const resetProcessingState = useCallback(() => {
     completedProcessKeyRef.current = "";
+    if (debounceRef.current !== null) {
+      window.clearTimeout(debounceRef.current);
+      debounceRef.current = null;
+    }
     requestIdRef.current += 1;
-  }, []);
+    processorRef.current?.dispose();
+    processorRef.current = capabilities.supported ? createProcessor(capabilities) : null;
+  }, [capabilities]);
 
 
   const handleFileChange = useCallback(
@@ -474,6 +480,46 @@ export default function App() {
       }
     },
     [pendingSource, processPendingSelection],
+  );
+
+  const handleOutputModeChange = useCallback(
+    async (nextOutputMode: OutputMode) => {
+      setOutputMode(nextOutputMode);
+
+      if (!source || pendingSource || phase === "awaiting-oversize-decision") {
+        return;
+      }
+
+      resetProcessingState();
+
+      try {
+        await runProcess(source, nextOutputMode, strength, exportFormat);
+      } catch (error) {
+        setPhase("error");
+        setErrorMessage(error instanceof Error ? error.message : "이미지 처리를 완료하지 못했습니다.");
+      }
+    },
+    [exportFormat, pendingSource, phase, resetProcessingState, runProcess, source, strength],
+  );
+
+  const handleExportFormatChange = useCallback(
+    async (nextFormat: ExportFormat) => {
+      setExportFormat(nextFormat);
+
+      if (!source || pendingSource || phase === "awaiting-oversize-decision") {
+        return;
+      }
+
+      resetProcessingState();
+
+      try {
+        await runProcess(source, outputMode, strength, nextFormat);
+      } catch (error) {
+        setPhase("error");
+        setErrorMessage(error instanceof Error ? error.message : "이미지 처리를 완료하지 못했습니다.");
+      }
+    },
+    [outputMode, pendingSource, phase, resetProcessingState, runProcess, source, strength],
   );
 
   useEffect(() => {
@@ -606,6 +652,18 @@ export default function App() {
   }, [capabilities, fourXSupport, source]);
 
   const statusMessage = useMemo(() => {
+    if (phase === "processing") {
+      if (outputMode === "4x") {
+        return "4x 업스케일 처리 중입니다. 모델 로딩과 초해상도 복원 때문에 시간이 조금 걸릴 수 있습니다.";
+      }
+
+      if (outputMode === "2x") {
+        return "2x 업스케일 처리 중입니다.";
+      }
+
+      return "이미지를 처리 중입니다.";
+    }
+
     if (!result) {
       return exportFormat === "image/png"
         ? "현재 저장 형식은 PNG입니다. JPG는 고정 품질 0.92를 사용합니다."
@@ -626,7 +684,7 @@ export default function App() {
       default:
         return `4x 업스케일을 ${oversizeThreshold}MP 한도로 조정했습니다: ${formatDimensionLabel(result.width, result.height)}.`;
     }
-  }, [exportFormat, jpegQuality, oversizeThreshold, result]);
+  }, [exportFormat, jpegQuality, outputMode, oversizeThreshold, phase, result]);
 
   const busy = phase === "processing" || phase === "exporting";
   const promptState = phase === "awaiting-oversize-decision" ? pendingSource : null;
@@ -682,7 +740,7 @@ export default function App() {
                 <h2>입력</h2>
                 <p>한 번에 이미지 한 장만 처리합니다. {oversizeThreshold}MP를 넘는 이미지는 명시적인 선택이 필요합니다.</p>
               </div>
-              <button className="button button-primary" type="button" data-action="choose-image" onClick={() => fileInputRef.current?.click()} disabled={busy}>
+              <button className="button button-primary" type="button" data-action="choose-image" onClick={() => fileInputRef.current?.click()}>
                 이미지 선택
               </button>
               <input
@@ -708,7 +766,7 @@ export default function App() {
                   step={0.01}
                   value={strength}
                   onChange={handleStrengthChange}
-                  disabled={!source || phase === "awaiting-oversize-decision" || busy}
+                  disabled={!source || phase === "awaiting-oversize-decision"}
                 />
                 <small>슬라이더를 움직이면 현재 이미지를 자동으로 다시 처리합니다.</small>
               </label>
@@ -721,8 +779,8 @@ export default function App() {
                     name="output-mode"
                     value="original"
                     checked={outputMode === "original"}
-                    onChange={() => setOutputMode("original")}
-                    disabled={!source || busy}
+                    onChange={() => handleOutputModeChange("original")}
+                    disabled={!source}
                   />
                   Original
                 </label>
@@ -732,8 +790,8 @@ export default function App() {
                     name="output-mode"
                     value="2x"
                     checked={outputMode === "2x"}
-                    onChange={() => setOutputMode("2x")}
-                    disabled={!source || busy}
+                    onChange={() => handleOutputModeChange("2x")}
+                    disabled={!source}
                   />
                   2x 업스케일
                 </label>
@@ -743,8 +801,8 @@ export default function App() {
                     name="output-mode"
                     value="4x"
                     checked={outputMode === "4x"}
-                    onChange={() => setOutputMode("4x")}
-                    disabled={!source || busy || !!fourXDisabledReason}
+                    onChange={() => handleOutputModeChange("4x")}
+                    disabled={!source || !!fourXDisabledReason}
                   />
                   4x 업스케일
                 </label>
@@ -760,8 +818,8 @@ export default function App() {
                     name="export-format"
                     value="image/png"
                     checked={exportFormat === "image/png"}
-                    onChange={() => setExportFormat("image/png")}
-                    disabled={!source || busy}
+                    onChange={() => handleExportFormatChange("image/png")}
+                    disabled={!source}
                   />
                   PNG
                 </label>
@@ -771,8 +829,8 @@ export default function App() {
                     name="export-format"
                     value="image/jpeg"
                     checked={exportFormat === "image/jpeg"}
-                    onChange={() => setExportFormat("image/jpeg")}
-                    disabled={!source || busy}
+                    onChange={() => handleExportFormatChange("image/jpeg")}
+                    disabled={!source}
                   />
                   JPG
                 </label>
