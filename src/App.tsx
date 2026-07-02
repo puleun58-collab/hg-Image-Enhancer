@@ -697,7 +697,7 @@ export default function App() {
           <p className="eyebrow">Image Enhancer V1</p>
           <h1>Enhance Images, Right in Your Browser</h1>
           <p className="hero-copy">
-            이미지 한 장을 업로드하고, 강도 하나만 조절한 뒤, 전후를 비교하고 PNG 또는 JPG로 저장합니다.
+            브라우저에서 이미지를 보정하고, Original·2x·4x 결과를 비교한 뒤 PNG 또는 JPG로 저장하세요.
           </p>
         </div>
         <div className={`capability-pill ${capabilities.supported ? "is-supported" : "is-blocked"}`}>
