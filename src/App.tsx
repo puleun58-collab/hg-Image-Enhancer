@@ -806,7 +806,6 @@ export default function App() {
                   />
                   4x 업스케일
                 </label>
-                <small>2x는 가로/세로를 2배로 업스케일합니다. 4x는 데스크톱 Chromium에서만 지원하며, 원본을 먼저 보정한 뒤 모델 기반 초해상도 복원을 적용합니다. 결과는 최대 {oversizeThreshold}MP로 제한됩니다.</small>
                 {fourXDisabledReason ? <small>{fourXDisabledReason}</small> : null}
               </fieldset>
 
