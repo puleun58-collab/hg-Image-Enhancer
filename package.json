@@ -11,8 +11,6 @@
     "qa:matrix": "npm run build && node scripts/qa-matrix.mjs"
   },
   "dependencies": {
-    "@huggingface/transformers": "^4.2.0",
-    "onnxruntime-web": "^1.27.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

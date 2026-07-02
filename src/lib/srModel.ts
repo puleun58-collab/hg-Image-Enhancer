@@ -1,5 +1,6 @@
 import type { CapabilityReport } from "../types";
 
+const TRANSFORMERS_CDN_URL = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.2.0";
 const FOUR_X_MODEL_ID = "Xenova/swin2SR-realworld-sr-x4-64-bsrgan-psnr";
 const FOUR_X_MODEL_DTYPE = "q8";
 const FOUR_X_SCALE = 4;
@@ -17,7 +18,12 @@ type RawImageLike = {
 
 type ImageToImagePipeline = (image: unknown) => Promise<RawImageLike>;
 
-type TransformersModule = typeof import("@huggingface/transformers");
+type TransformersModule = {
+  env: { allowRemoteModels: boolean; allowLocalModels: boolean; logLevel: number };
+  LogLevel: { ERROR: number };
+  pipeline: (task: string, model: string, options: { device: DeviceName; dtype: string }) => Promise<unknown>;
+  RawImage: { fromCanvas(canvas: HTMLCanvasElement | OffscreenCanvas): RawImageLike };
+};
 
 let transformersPromise: Promise<TransformersModule> | null = null;
 let pipelinePromise: Promise<ImageToImagePipeline> | null = null;
@@ -112,7 +118,7 @@ function resetPipeline() {
 
 function loadTransformers() {
   if (!transformersPromise) {
-    transformersPromise = import("@huggingface/transformers");
+    transformersPromise = import(/* @vite-ignore */ TRANSFORMERS_CDN_URL) as Promise<TransformersModule>;
   }
 
   return transformersPromise;
