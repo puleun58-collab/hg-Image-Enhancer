@@ -6,15 +6,15 @@
   -webkit-font-smoothing: antialiased;
 
   --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, "Apple SD Gothic Neo", serif;
-  --color-page: #f4f1ea;
-  --color-page-top: #f8f6f1;
-  --color-surface: #fbfaf7;
-  --color-surface-subtle: #efede6;
-  --color-ink: #191c20;
-  --color-secondary: #45484e;
-  --color-muted: #6c6e72;
-  --color-border: #d7d2c8;
-  --color-border-strong: #a9a398;
+  --color-page: #ffffff;
+  --color-page-top: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #f7f8fa;
+  --color-ink: #171a21;
+  --color-secondary: #454b57;
+  --color-muted: #707782;
+  --color-border: #e2e5ea;
+  --color-border-strong: #b8bec8;
   --color-brand: #3f3a88;
   --color-brand-hover: #2f2a70;
   --color-brand-soft: #e8e5f1;
@@ -34,7 +34,7 @@
   --color-disabled-text: #8b94a8;
   --color-disabled-border: #e2e6ef;
   --color-disabled-surface: #f2f4f8;
-  --color-processing-overlay: rgba(251, 250, 247, 0.94);
+  --color-processing-overlay: rgba(255, 255, 255, 0.94);
 
   --space-1: 4px;
   --space-2: 8px;
@@ -50,8 +50,8 @@
   --radius-md: 6px;
   --radius-lg: 8px;
   --radius-pill: 999px;
-  --shadow-low: 0 12px 32px rgba(32, 29, 24, 0.06);
-  --shadow-raised: 0 24px 64px rgba(32, 29, 24, 0.08);
+  --shadow-low: 0 12px 32px rgba(30, 41, 59, 0.06);
+  --shadow-raised: 0 24px 64px rgba(30, 41, 59, 0.08);
   --container: 1180px;
   --gutter: 24px;
   --font-size-caption: 0.78rem;
