@@ -152,4 +152,22 @@ export function isSupportedBrowser(
   return getCapabilityReport(runtime, userAgent).supported;
 }
 
+export function getFourXSupport(capabilities: CapabilityReport) {
+  if (capabilities.bucket !== "desktop-chromium") {
+    return {
+      supported: false,
+      reason: "4x 업스케일은 현재 데스크톱 Chromium 계열에서만 지원합니다.",
+    };
+  }
+
+  if (!capabilities.hasCanvas2D || !capabilities.hasWorker || !capabilities.hasOffscreenCanvas) {
+    return {
+      supported: false,
+      reason: "4x 업스케일에는 Canvas 2D, Web Worker, OffscreenCanvas가 필요합니다.",
+    };
+  }
+
+  return { supported: true, reason: null };
+}
+
 export const unsupportedDesktopSafariReason = DESKTOP_SAFARI_REASON;

@@ -8,9 +8,11 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "qa:matrix": "npm run build && node scripts/qa-matrix.mjs"
+    "qa:matrix": "npm run build && node scripts/qa-matrix.mjs",
+    "qa:4x": "npm run build && node scripts/qa-four-x.mjs"
   },
   "dependencies": {
+    "@huggingface/transformers": "^3.8.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"
   },

@@ -19,6 +19,18 @@
 npm install
 ```
 
+### 4x 로컬 모델과 검증
+
+- 추론 런타임은 `@huggingface/transformers@3.8.1`을 번들하며 외부 CDN 모듈을 import하지 않는다.
+- 모델은 `public/models/Xenova/swin2SR-realworld-sr-x4-64-bsrgan-psnr/`에 고정 리비전으로 보관한다.
+- 출처, 리비전, 파일별 SHA-256은 모델 폴더의 `SOURCE.md`에서 확인할 수 있다.
+- ONNX WASM은 Vite가 해시된 `/assets/` 자산으로 생성한다. 배포 시 모델 약 21.4MB와 WASM 약 21.6MB에 장기 캐시 헤더 사용을 권장한다.
+- 아래 명령은 실제 4x 결과 크기와 로컬 모델/WASM 요청, 외부 요청 0건을 검증하고 `artifacts/qa-matrix/qa-four-x.json`을 만든다.
+
+```bash
+npm run qa:4x
+```
+
 자동 브라우저 검증까지 사용할 경우 한 번만 추가로 실행:
 ```bash
 npx playwright install chromium firefox
@@ -64,11 +76,14 @@ npm run qa:matrix
    - 데스크톱 Firefox (`desktop-firefox`)
 4. 각 주요 fixture에 대해 미리보기 3회 실행 시간을 수집하고 중앙값을 계산
 5. PNG/JPG 저장 시간, 저장 파일, 미리보기/내보내기 패리티 근거를 `artifacts/qa-matrix/`에 저장
-6. 결과를 `artifacts/qa-matrix/qa-matrix.json`에 저장
+6. 390px 반응형, 키보드 접근성, 처리 중 잠금, 대용량 선택 포커스, 다크 모드 화면을 검증
+7. 실제 Android Chrome UA에서 호환성 차단 화면과 가로 스크롤 여부를 검증
+8. 결과를 `artifacts/qa-matrix/qa-matrix.json`에 저장
 
 주의:
 - `qa:matrix`는 현재 데스크톱 공식 지원 범위만 자동 검증한다.
-- 모바일 브라우저 동작은 참고 수준으로만 보고, 출시 지원 범위에는 포함하지 않는다.
+- 모바일 브라우저는 출시 지원 범위에 포함하지 않지만, 실제 모바일 UA에서 차단 안내가 정상적으로 표시되는지는 자동 검증한다.
+- 패리티 비교 Canvas는 앱 미리보기와 동일한 `imageSmoothingQuality = "medium"`을 사용해 브라우저 기본 리샘플링 차이를 제거한다.
 
 ## 폴더 구조
 ```text

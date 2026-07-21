@@ -16,7 +16,7 @@ import type {
   ProcessResponse,
 } from "./types";
 
-import { getCapabilityReport } from "./lib/capabilities";
+import { getCapabilityReport, getFourXSupport } from "./lib/capabilities";
 import {
   FOUR_X_MAX_MEGAPIXELS,
   OUTPUT_MAX_MEGAPIXELS,
@@ -28,7 +28,7 @@ import {
 } from "./lib/image";
 import { DEFAULT_JPEG_QUALITY } from "./lib/export";
 import { processImageRequest } from "./lib/enhance";
-import { getFourXSupport } from "./lib/srModel";
+import { Button, SectionHeader, StatusBadge, WorkflowSteps } from "./ui";
 
 type ExportFormat = "image/png" | "image/jpeg";
 
@@ -234,6 +234,7 @@ export default function App() {
   const latestPendingSourceRef = useRef<PendingSource | null>(null);
   const latestResultRef = useRef<ProcessResponse | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const promptHeadingRef = useRef<HTMLHeadingElement | null>(null);
   const compareFrameRef = useRef<HTMLDivElement | null>(null);
   const debugPreviewUrlRef = useRef<string | null>(null);
 
@@ -242,6 +243,7 @@ export default function App() {
   const oversizeThreshold = useMemo(() => resolveOversizeThreshold(), []);
   const jpegQuality = useMemo(() => resolveJpegQuality(), []);
   const blockedMessage = useMemo(() => buildBlockedMessage(capabilities), [capabilities]);
+  const busy = phase === "processing" || phase === "exporting";
 
   useEffect(() => {
     if (!capabilities.supported) {
@@ -311,6 +313,12 @@ export default function App() {
       revokeObjectUrl(latestPendingSourceRef.current?.source.objectUrl);
     };
   }, []);
+
+  useEffect(() => {
+    if (phase === "awaiting-oversize-decision") {
+      promptHeadingRef.current?.focus();
+    }
+  }, [phase]);
 
   const replaceSource = useCallback((nextSource: ImageSource | null) => {
     setSource((current) => {
@@ -606,7 +614,7 @@ export default function App() {
   }, [updateComparePosition]);
 
   const handleExport = useCallback(async () => {
-    if (!result || !source) {
+    if (!result || !source || phase !== "ready") {
       return;
     }
 
@@ -623,7 +631,22 @@ export default function App() {
       setPhase("error");
       setErrorMessage(error instanceof Error ? error.message : "파일을 내보내지 못했습니다.");
     }
-  }, [exportFormat, result, source]);
+  }, [exportFormat, phase, result, source]);
+
+  const handleRetry = useCallback(async () => {
+    if (!source || busy) {
+      return;
+    }
+
+    resetProcessingState();
+
+    try {
+      await runProcess(source, outputMode, strength, exportFormat);
+    } catch (error) {
+      setPhase("error");
+      setErrorMessage(error instanceof Error ? error.message : "이미지 처리를 완료하지 못했습니다.");
+    }
+  }, [busy, exportFormat, outputMode, resetProcessingState, runProcess, source, strength]);
 
   const capabilityRows = useMemo(
     () => [
@@ -686,19 +709,44 @@ export default function App() {
     }
   }, [exportFormat, jpegQuality, outputMode, oversizeThreshold, phase, result]);
 
-  const busy = phase === "processing" || phase === "exporting";
   const promptState = phase === "awaiting-oversize-decision" ? pendingSource : null;
+  const workflowStep: 1 | 2 | 3 = result && phase === "ready" ? 3 : source || promptState ? 2 : 1;
 
 
   return (
-    <main className="app-shell">
+    <>
+      <a className="skip-link" href="#main-content">본문으로 건너뛰기</a>
+      <main className="app-shell" id="main-content">
       <section className="panel hero-panel">
-        <div>
+        <div className="hero-content">
           <p className="eyebrow">Image Enhancer V1</p>
-          <h1>Enhance Images, Right in Your Browser</h1>
+          <h1>Enhance Images,<br />Right in Your Browser</h1>
           <p className="hero-copy">
             브라우저에서 이미지를 보정하고, Original·2x·4x 결과를 비교한 뒤 PNG 또는 JPG로 저장하세요.
           </p>
+          {capabilities.supported ? (
+            <div className="hero-actions">
+              <Button
+                variant="primary"
+                type="button"
+                data-action="choose-image"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                이미지 선택
+              </Button>
+              <span>이미지는 브라우저 안에서만 처리됩니다.</span>
+            </div>
+          ) : null}
+          <input
+            ref={fileInputRef}
+            id="image-input"
+            className="sr-only"
+            type="file"
+            tabIndex={-1}
+            accept="image/png,image/jpeg,image/webp,image/heic,image/heif"
+            aria-label="보정할 이미지 선택"
+            onChange={handleFileChange}
+          />
         </div>
         <div className={`capability-pill ${capabilities.supported ? "is-supported" : "is-blocked"}`}>
           <span>{capabilities.supported ? "지원 브라우저" : "미지원 브라우저"}</span>
@@ -706,24 +754,28 @@ export default function App() {
         </div>
       </section>
 
+      {capabilities.supported ? (
+        <WorkflowSteps currentStep={workflowStep} />
+      ) : null}
+
       <section className="panel summary-panel">
-        <div className="summary-header">
-          <div>
-            <h2>실행 환경 요약</h2>
-            <p>V1은 데스크톱 우선 지원으로 정리했습니다. 데스크톱 Safari와 모바일 브라우저는 출시 대상이 아니며, 브라우저 기본 디코드와 캔버스 색 처리에 의존합니다.</p>
-          </div>
-          <div className={`phase-badge phase-${phase}`} data-phase={phase}>
-            {formatPhaseLabel(phase)}
-          </div>
-        </div>
-        <dl className="capability-grid">
-          {capabilityRows.map(([label, value]) => (
-            <div key={label} className="capability-row">
-              <dt>{label}</dt>
-              <dd>{value}</dd>
-            </div>
-          ))}
-        </dl>
+        <SectionHeader
+          title="실행 환경"
+          description="이 브라우저에서 사용할 수 있는 이미지 처리 기능을 확인했습니다."
+          action={<StatusBadge className={`phase-${phase}`}><span data-phase={phase}>{formatPhaseLabel(phase)}</span></StatusBadge>}
+        />
+        <details className="capability-details">
+          <summary>환경 세부 정보 보기</summary>
+          <p>V1은 데스크톱 Chromium과 Firefox를 우선 지원하며 브라우저 기본 디코드와 캔버스 색 처리에 의존합니다.</p>
+          <dl className="capability-grid">
+            {capabilityRows.map(([label, value]) => (
+              <div key={label} className="capability-row">
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
+        </details>
       </section>
 
       {phase === "compatibility-blocked" ? (
@@ -734,23 +786,16 @@ export default function App() {
         </section>
       ) : (
         <>
-          <section className="panel control-panel">
-            <div className="upload-row">
-              <div>
-                <h2>입력</h2>
-                <p>한 번에 이미지 한 장만 처리합니다. {oversizeThreshold}MP를 넘는 이미지는 명시적인 선택이 필요합니다.</p>
-              </div>
-              <button className="button button-primary" type="button" data-action="choose-image" onClick={() => fileInputRef.current?.click()}>
-                이미지 선택
-              </button>
-              <input
-                ref={fileInputRef}
-                className="sr-only"
-                type="file"
-                accept="image/png,image/jpeg,image/webp,image/heic,image/heif"
-                onChange={handleFileChange}
-              />
-            </div>
+          <section className="panel control-panel" id="controls">
+            <SectionHeader
+              title="이미지 조정"
+              description={<>한 번에 한 장을 처리합니다. {oversizeThreshold}MP를 넘는 이미지는 출력 방식을 확인합니다.</>}
+              action={source ? (
+                <Button variant="quiet" type="button" onClick={() => fileInputRef.current?.click()}>
+                  다른 이미지 선택
+                </Button>
+              ) : null}
+            />
 
             <div className="control-grid">
               <label className="slider-card" htmlFor="strength">
@@ -766,7 +811,7 @@ export default function App() {
                   step={0.01}
                   value={strength}
                   onChange={handleStrengthChange}
-                  disabled={!source || phase === "awaiting-oversize-decision"}
+                  disabled={!source || busy || phase === "awaiting-oversize-decision"}
                 />
                 <small>슬라이더를 움직이면 현재 이미지를 자동으로 다시 처리합니다.</small>
               </label>
@@ -780,7 +825,7 @@ export default function App() {
                     value="original"
                     checked={outputMode === "original"}
                     onChange={() => handleOutputModeChange("original")}
-                    disabled={!source}
+                    disabled={!source || busy}
                   />
                   Original
                 </label>
@@ -791,7 +836,7 @@ export default function App() {
                     value="2x"
                     checked={outputMode === "2x"}
                     onChange={() => handleOutputModeChange("2x")}
-                    disabled={!source}
+                    disabled={!source || busy}
                   />
                   2x 업스케일
                 </label>
@@ -802,7 +847,7 @@ export default function App() {
                     value="4x"
                     checked={outputMode === "4x"}
                     onChange={() => handleOutputModeChange("4x")}
-                    disabled={!source || !!fourXDisabledReason}
+                    disabled={!source || busy || !!fourXDisabledReason}
                   />
                   4x 업스케일
                 </label>
@@ -818,7 +863,7 @@ export default function App() {
                     value="image/png"
                     checked={exportFormat === "image/png"}
                     onChange={() => handleExportFormatChange("image/png")}
-                    disabled={!source}
+                    disabled={!source || busy}
                   />
                   PNG
                 </label>
@@ -829,19 +874,12 @@ export default function App() {
                     value="image/jpeg"
                     checked={exportFormat === "image/jpeg"}
                     onChange={() => handleExportFormatChange("image/jpeg")}
-                    disabled={!source}
+                    disabled={!source || busy}
                   />
                   JPG
                 </label>
                 <small>JPG 저장은 고정 품질 {jpegQuality.toFixed(2)}를 사용합니다.</small>
               </fieldset>
-            </div>
-
-            <div className="status-row">
-              <p>{statusMessage}</p>
-              <button className="button" type="button" data-action="export-image" onClick={handleExport} disabled={!result || busy}>
-                {phase === "exporting" ? "내보내는 중…" : `${getFormatLabel(exportFormat)} 저장`}
-              </button>
             </div>
 
             {source ? (
@@ -855,8 +893,8 @@ export default function App() {
           </section>
 
           {promptState ? (
-            <section className="panel prompt-panel" role="alert">
-              <h2>대용량 이미지 출력 방식 선택</h2>
+            <section className="panel prompt-panel" role="alert" aria-labelledby="oversize-title">
+              <h2 ref={promptHeadingRef} id="oversize-title" tabIndex={-1}>대용량 이미지 출력 방식 선택</h2>
               <p>{promptState.decision?.message || `이 이미지는 ${oversizeThreshold}MP 기준을 초과합니다.`}</p>
               <div className="prompt-stats">
                 <span>{promptState.source.name}</span>
@@ -864,17 +902,17 @@ export default function App() {
                 <span>{formatDimensionLabel(promptState.source.width, promptState.source.height)}</span>
               </div>
               <div className="prompt-actions">
-                <button
-                  className="button button-primary"
+                <Button
+                  variant="primary"
                   type="button"
                   data-action="keep-original"
                   onClick={() => handleOversizeChoice("original")}
                 >
                   Original로 계속
-                </button>
-                <button className="button" type="button" data-action="downscale" onClick={() => handleOversizeChoice("2x")}>
+                </Button>
+                <Button type="button" data-action="downscale" onClick={() => handleOversizeChoice("2x")}>
                   2x 업스케일로 계속
-                </button>
+                </Button>
               </div>
             </section>
           ) : null}
@@ -884,16 +922,22 @@ export default function App() {
               <h2>복구 가능한 오류</h2>
               <p>{errorMessage}</p>
               <p>이미지를 다시 선택하거나 저장 형식을 조정한 뒤 다시 시도하세요.</p>
+              <div className="error-actions">
+                {source ? (
+                  <Button type="button" onClick={handleRetry} disabled={busy}>다시 시도</Button>
+                ) : null}
+                <Button variant="secondary" type="button" onClick={() => fileInputRef.current?.click()}>
+                  다른 이미지 선택
+                </Button>
+              </div>
             </section>
           ) : null}
 
-          <section className="panel compare-panel">
-            <div className="compare-header">
-              <div>
-                <h2>비교</h2>
-                <p>이미지를 드래그하거나 탭/스와이프해서 원본과 보정 미리보기를 비교하세요.</p>
-              </div>
-              {result ? (
+          <section className="panel compare-panel" id="compare">
+            <SectionHeader
+              title="결과 비교"
+              description="프레임을 드래그하거나 아래 슬라이더를 사용해 원본과 보정 결과를 비교하세요."
+              action={result ? (
                 <div className="render-meta">
                   <span>{result.strategy === "original" ? "Original" : result.strategy === "original-clamped" ? `${oversizeThreshold}MP로 조정된 Original` : result.strategy === "2x" ? "2x 업스케일" : result.strategy === "2x-clamped" ? `${oversizeThreshold}MP로 조정된 2x 업스케일` : result.strategy === "4x" ? "4x 업스케일" : `${oversizeThreshold}MP로 조정된 4x 업스케일`}</span>
                   <span>{formatDimensionLabel(result.width, result.height)}</span>
@@ -901,35 +945,75 @@ export default function App() {
                   <span>{Math.round(result.timingMs)} ms</span>
                 </div>
               ) : null}
-            </div>
+            />
 
             <div
               ref={compareFrameRef}
-              className={`compare-frame ${result ? "is-ready" : "is-empty"}`}
-              onPointerDown={result ? handleComparePointerDown : undefined}
-              onPointerMove={result ? handleComparePointerMove : undefined}
-              onPointerUp={result ? handleComparePointerUp : undefined}
-              onPointerCancel={result ? handleComparePointerUp : undefined}
-              onTouchStart={result ? handleCompareTouch : undefined}
-              onTouchMove={result ? handleCompareTouch : undefined}
+              className={`compare-frame ${result && !busy ? "is-ready" : "is-empty"}`}
+              aria-busy={phase === "processing" || undefined}
+              onPointerDown={result && !busy ? handleComparePointerDown : undefined}
+              onPointerMove={result && !busy ? handleComparePointerMove : undefined}
+              onPointerUp={result && !busy ? handleComparePointerUp : undefined}
+              onPointerCancel={result && !busy ? handleComparePointerUp : undefined}
+              onTouchStart={result && !busy ? handleCompareTouch : undefined}
+              onTouchMove={result && !busy ? handleCompareTouch : undefined}
             >
               {source ? <img className="compare-image base-image" src={source.objectUrl} alt="원본 업로드 이미지" draggable={false} /> : null}
-              {result ? (
+              {result && !busy ? (
                 <div className="compare-overlay" style={{ clipPath: `inset(0 ${100 - comparePosition}% 0 0)` }}>
                   <img className="compare-image" src={result.preview.objectUrl} alt="보정된 미리보기" draggable={false} />
                 </div>
               ) : null}
-              {result ? (
+              {result && !busy ? (
                 <div className="compare-handle" style={{ left: `${comparePosition}%` }} aria-hidden="true">
                   <span />
                 </div>
               ) : null}
               {!source ? <div className="empty-state">이미지를 업로드하면 비교를 시작할 수 있습니다.</div> : null}
-              {source && !result && phase === "processing" ? <div className="empty-state">미리보기를 처리하는 중…</div> : null}
+              {source && phase === "processing" ? (
+                <div className="processing-state" role="status" aria-live="polite">
+                  <span className="processing-skeleton" aria-hidden="true" />
+                  <strong>{outputMode === "4x" ? "4x 모델로 이미지를 복원하는 중" : "미리보기를 만드는 중"}</strong>
+                  <span>완료되면 비교 프레임과 저장 버튼이 자동으로 업데이트됩니다.</span>
+                </div>
+              ) : null}
+            </div>
+            <label className={`compare-control ${result ? "" : "is-disabled"}`} htmlFor="compare-position">
+              <span>비교 위치</span>
+              <strong>{Math.round(comparePosition)}%</strong>
+              <input
+                id="compare-position"
+                type="range"
+                min={0}
+                max={100}
+                step={1}
+                value={comparePosition}
+                disabled={!result || busy}
+                aria-valuetext={`보정 이미지 ${Math.round(comparePosition)}% 표시`}
+                onChange={(event) => setComparePosition(Number(event.target.value))}
+              />
+            </label>
+
+            <div className="export-row" id="export">
+              <div className="live-status" role="status" aria-live="polite" aria-atomic="true">
+                <strong>{busy ? "처리 중" : result ? "저장 준비 완료" : "이미지 대기 중"}</strong>
+                <p>{statusMessage}</p>
+              </div>
+              <Button
+                variant="primary"
+                type="button"
+                data-action="export-image"
+                onClick={handleExport}
+                disabled={!result || phase !== "ready"}
+                busy={phase === "exporting"}
+              >
+                {`${getFormatLabel(exportFormat)}로 저장`}
+              </Button>
             </div>
           </section>
         </>
       )}
-    </main>
+      </main>
+    </>
   );
 }

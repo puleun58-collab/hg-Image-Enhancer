@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { detectBrowserBucket, getCapabilityReport, unsupportedDesktopSafariReason } from "./capabilities";
+import type { CapabilityReport } from "../types";
+
+import {
+  detectBrowserBucket,
+  getCapabilityReport,
+  getFourXSupport,
+  unsupportedDesktopSafariReason,
+} from "./capabilities";
 
 describe("capabilities", () => {
   it("maps supported and unsupported browser buckets", () => {
@@ -55,5 +62,22 @@ describe("capabilities", () => {
 
     expect(report.supported).toBe(false);
     expect(report.reason).toBe(unsupportedDesktopSafariReason);
+  });
+
+  it("keeps 4x support limited to capable desktop Chromium runtimes", () => {
+    const capable = {
+      bucket: "desktop-chromium",
+      supported: true,
+      hasCanvas2D: true,
+      hasWorker: true,
+      hasCreateImageBitmap: true,
+      hasOffscreenCanvas: true,
+      hasWebGL2: true,
+      hasWebGPU: true,
+    } satisfies CapabilityReport;
+
+    expect(getFourXSupport(capable)).toEqual({ supported: true, reason: null });
+    expect(getFourXSupport({ ...capable, bucket: "desktop-firefox" }).supported).toBe(false);
+    expect(getFourXSupport({ ...capable, hasOffscreenCanvas: false }).supported).toBe(false);
   });
 });

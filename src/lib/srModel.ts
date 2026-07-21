@@ -1,6 +1,3 @@
-import type { CapabilityReport } from "../types";
-
-const TRANSFORMERS_CDN_URL = "https://cdn.jsdelivr.net/npm/@huggingface/transformers@4.2.0";
 const FOUR_X_MODEL_ID = "Xenova/swin2SR-realworld-sr-x4-64-bsrgan-psnr";
 const FOUR_X_MODEL_DTYPE = "q8";
 const FOUR_X_SCALE = 4;
@@ -19,8 +16,18 @@ type RawImageLike = {
 type ImageToImagePipeline = (image: unknown) => Promise<RawImageLike>;
 
 type TransformersModule = {
-  env: { allowRemoteModels: boolean; allowLocalModels: boolean; logLevel: number };
-  LogLevel: { ERROR: number };
+  env: {
+    allowRemoteModels: boolean;
+    allowLocalModels: boolean;
+    localModelPath: string;
+    backends: {
+      onnx: {
+        wasm?: {
+          wasmPaths?: string | Record<string, never>;
+        };
+      };
+    };
+  };
   pipeline: (task: string, model: string, options: { device: DeviceName; dtype: string }) => Promise<unknown>;
   RawImage: { fromCanvas(canvas: HTMLCanvasElement | OffscreenCanvas): RawImageLike };
 };
@@ -29,27 +36,9 @@ let transformersPromise: Promise<TransformersModule> | null = null;
 let pipelinePromise: Promise<ImageToImagePipeline> | null = null;
 let pipelineDevice: DeviceName | null = null;
 
-export function getFourXSupport(capabilities: CapabilityReport) {
-  if (capabilities.bucket !== "desktop-chromium") {
-    return {
-      supported: false,
-      reason: "4x 업스케일은 현재 데스크톱 Chromium 계열에서만 지원합니다.",
-    };
-  }
-
-  if (!capabilities.hasCanvas2D || !capabilities.hasWorker || !capabilities.hasOffscreenCanvas) {
-    return {
-      supported: false,
-      reason: "4x 업스케일에는 Canvas 2D, Web Worker, OffscreenCanvas가 필요합니다.",
-    };
-  }
-
-  return { supported: true, reason: null };
-}
-
 export async function runFourXSuperResolution(source: ImageData): Promise<ImageData> {
   try {
-    const upscaler = await loadFourXPipeline();
+    const upscaler = await loadFourXPipeline(await getPreferredDevices());
     return await runTiledSuperResolutionWith(source, upscaler);
   } catch (error) {
     if (pipelineDevice === "webgpu") {
@@ -62,11 +51,30 @@ export async function runFourXSuperResolution(source: ImageData): Promise<ImageD
   }
 }
 
+async function getPreferredDevices(): Promise<DeviceName[]> {
+  const runtimeNavigator = typeof navigator === "undefined"
+    ? null
+    : navigator as Navigator & {
+        gpu?: { requestAdapter: () => Promise<unknown | null> };
+      };
+
+  if (!runtimeNavigator?.gpu) {
+    return ["wasm"];
+  }
+
+  try {
+    const adapter = await runtimeNavigator.gpu.requestAdapter();
+    return adapter ? ["webgpu", "wasm"] : ["wasm"];
+  } catch {
+    return ["wasm"];
+  }
+}
+
 export function getFourXPipelineDevice() {
   return pipelineDevice;
 }
 
-async function loadFourXPipeline(preferredDevices: DeviceName[] = ["webgpu", "wasm"]): Promise<ImageToImagePipeline> {
+async function loadFourXPipeline(preferredDevices: DeviceName[]): Promise<ImageToImagePipeline> {
   if (pipelinePromise) {
     return pipelinePromise;
   }
@@ -83,11 +91,16 @@ async function loadFourXPipeline(preferredDevices: DeviceName[] = ["webgpu", "wa
 
 async function createFourXPipeline(preferredDevices: DeviceName[]): Promise<ImageToImagePipeline> {
   const transformers = await loadTransformers();
-  const { env, pipeline, LogLevel } = transformers;
+  const { env, pipeline } = transformers;
 
-  env.allowRemoteModels = true;
-  env.allowLocalModels = false;
-  env.logLevel = LogLevel.ERROR;
+  env.allowRemoteModels = false;
+  env.allowLocalModels = true;
+  env.localModelPath = "/models/";
+  if (env.backends.onnx.wasm) {
+    // A truthy local configuration prevents Transformers.js from replacing the
+    // Vite-emitted WASM asset URL with its default public CDN path.
+    env.backends.onnx.wasm.wasmPaths = {};
+  }
 
   let lastError: unknown;
 
@@ -118,7 +131,7 @@ function resetPipeline() {
 
 function loadTransformers() {
   if (!transformersPromise) {
-    transformersPromise = import(/* @vite-ignore */ TRANSFORMERS_CDN_URL) as Promise<TransformersModule>;
+    transformersPromise = import("@huggingface/transformers") as unknown as Promise<TransformersModule>;
   }
 
   return transformersPromise;

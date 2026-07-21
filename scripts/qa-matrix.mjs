@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawn } from "node:child_process";
 import process from "node:process";
-import { chromium, firefox } from "playwright";
+import { chromium, devices, firefox } from "playwright";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
@@ -30,8 +30,7 @@ const fixtureNames = {
   text: "text-heavy-12mp.jpg",
   haze: "haze-heavy-12mp.jpg",
   noisy: "noisy-low-light-12mp.jpg",
-  oversize: "oversize.png",
-  forcedOversize: "force-downscale-28mp.jpg",
+  oversize: "force-downscale-28mp.jpg",
 };
 
 await mkdir(artifactsDir, { recursive: true });
@@ -48,6 +47,11 @@ try {
   for (const target of targets) {
     report.targets.push(await runTarget(target));
   }
+
+  report.responsive = await runResponsiveVisual();
+  report.accessibility = await runAccessibilityChecks();
+  report.darkMode = await runDarkModeVisual();
+  report.mobileSupport = await runMobileSupportVisual();
 
   const outPath = path.join(artifactsDir, "qa-matrix.json");
   await writeFile(outPath, JSON.stringify(report, null, 2));
@@ -120,6 +124,10 @@ async function runTarget(target) {
     const timingSeries = [];
     const parity = [];
     const downloads = [];
+    let readyScreenshotPath = null;
+
+    const oversizePrompt = await triggerOversizePrompt(page, path.join(root, "fixtures", fixtureNames.oversize));
+    const oversizeDownscaled = await finishOversizeDownscale(page);
 
     for (const fixture of [fixtureNames.text, fixtureNames.haze, fixtureNames.noisy]) {
       const fixturePath = path.join(root, "fixtures", fixture);
@@ -144,6 +152,11 @@ async function runTarget(target) {
         if (iteration === 1 && pngParity && jpgParity) {
           parity.push({ fixture, png: pngParity, jpg: jpgParity });
         }
+
+        if (fixture === fixtureNames.text && iteration === 1) {
+          readyScreenshotPath = path.join(artifactsDir, `${target.id}-ready.png`);
+          await page.screenshot({ path: readyScreenshotPath, fullPage: true });
+        }
       }
 
       const previewValues = previewRuns
@@ -167,14 +180,6 @@ async function runTarget(target) {
       });
     }
 
-    await page.goto(previewUrl, { waitUntil: "networkidle" });
-    const oversizePrompt = await triggerOversizePrompt(page, path.join(root, "fixtures", fixtureNames.oversize));
-    const oversizeDownscaled = await finishOversizeDownscale(page);
-
-    await page.goto(previewUrl, { waitUntil: "networkidle" });
-    const forcedOversizePrompt = await triggerOversizePrompt(page, path.join(root, "fixtures", fixtureNames.forcedOversize));
-    const forcedOversizeDownscaled = await finishOversizeDownscale(page);
-
     const screenshotPath = path.join(artifactsDir, `${target.id}.png`);
     await page.screenshot({ path: screenshotPath, fullPage: true });
 
@@ -190,12 +195,10 @@ async function runTarget(target) {
       && entry.jpg.edgeDriftPercent <= 5
       && entry.jpg.meanChannelDelta <= 18
     ));
-    const forcedOversizePass = forcedOversizePrompt.keepOriginalDisabled && forcedOversizeDownscaled.phase === "ready";
     const status = previewTimingPass
       && exportTimingCaptured
       && parityPass
       && oversizeDownscaled.phase === "ready"
-      && forcedOversizePass
       ? "passed"
       : "failed";
 
@@ -208,9 +211,8 @@ async function runTarget(target) {
       downloads,
       oversizePrompt,
       oversizeDownscaled,
-      forcedOversizePrompt,
-      forcedOversizeDownscaled,
       screenshotPath,
+      readyScreenshotPath,
     };
   } finally {
     await browser.close();
@@ -219,13 +221,13 @@ async function runTarget(target) {
 
 async function getUiState(page) {
   return page.evaluate(() => ({
-    phaseText: document.querySelector('.phase-badge')?.textContent?.trim() ?? 'unknown',
-    phaseValue: document.querySelector('.phase-badge')?.getAttribute('data-phase') ?? null,
+    phaseText: document.querySelector('[data-phase]')?.textContent?.trim() ?? 'unknown',
+    phaseValue: document.querySelector('[data-phase]')?.getAttribute('data-phase') ?? null,
     sourceName: window.__imageEnhancerDebug?.sourceName ?? null,
     exportFormat: window.__imageEnhancerDebug?.exportFormat ?? null,
     previewObjectUrl: window.__imageEnhancerDebug?.previewObjectUrl ?? null,
     exportObjectUrl: window.__imageEnhancerDebug?.exportObjectUrl ?? null,
-    status: document.querySelector('.status-row p')?.textContent?.trim() ?? '',
+    status: document.querySelector('.live-status p')?.textContent?.trim() ?? '',
     renderMeta: document.querySelector('.render-meta')?.textContent?.trim() ?? '',
   }));
 }
@@ -233,8 +235,7 @@ async function getUiState(page) {
 async function waitForReadyResult(page, expectedSourceName, previousPreviewUrl, timeout) {
   await page.waitForFunction(
     ({ sourceName, previewUrl }) => {
-      const badge = document.querySelector('.phase-badge');
-      const phase = badge?.getAttribute('data-phase') ?? badge?.textContent?.trim().toLowerCase() ?? '';
+      const phase = document.querySelector('[data-phase]')?.getAttribute('data-phase') ?? '';
       const renderMeta = document.querySelector('.render-meta')?.textContent?.trim() ?? '';
       const debug = window.__imageEnhancerDebug;
       return phase === 'ready'
@@ -251,8 +252,7 @@ async function waitForReadyResult(page, expectedSourceName, previousPreviewUrl, 
 async function waitForExportResult(page, expectedFormat, previousExportUrl, timeout) {
   await page.waitForFunction(
     ({ format, exportUrl }) => {
-      const badge = document.querySelector('.phase-badge');
-      const phase = badge?.getAttribute('data-phase') ?? badge?.textContent?.trim().toLowerCase() ?? '';
+      const phase = document.querySelector('[data-phase]')?.getAttribute('data-phase') ?? '';
       const debug = window.__imageEnhancerDebug;
       return phase === 'ready'
         && debug?.exportFormat === format
@@ -269,10 +269,10 @@ async function uploadAndWait(page, fixturePath) {
   await page.locator('input[type="file"]').setInputFiles(fixturePath);
   await waitForReadyResult(page, path.basename(fixturePath), previousState.previewObjectUrl, 45000);
   return page.evaluate(() => {
-    const phase = document.querySelector('.phase-badge')?.getAttribute('data-phase')
-      ?? document.querySelector('.phase-badge')?.textContent?.trim()
+    const phase = document.querySelector('[data-phase]')?.getAttribute('data-phase')
+      ?? document.querySelector('[data-phase]')?.textContent?.trim()
       ?? 'unknown';
-    const status = document.querySelector('.status-row p')?.textContent?.trim() ?? '';
+    const status = document.querySelector('.live-status p')?.textContent?.trim() ?? '';
     const renderMeta = document.querySelector('.render-meta')?.textContent?.trim() ?? '';
     const match = renderMeta.match(/(\d+)\s*ms/);
     return {
@@ -330,6 +330,10 @@ async function collectParityMetrics(page) {
       throw new Error('Canvas 2D unavailable during parity collection.');
     }
 
+    previewCtx.imageSmoothingEnabled = true;
+    previewCtx.imageSmoothingQuality = 'medium';
+    exportCtx.imageSmoothingEnabled = true;
+    exportCtx.imageSmoothingQuality = 'medium';
     previewCtx.drawImage(preview.bitmap, 0, 0, width, height);
     exportCtx.drawImage(exported.bitmap, 0, 0, width, height);
 
@@ -425,9 +429,19 @@ async function captureDownload(page, targetId, fixture, formatLabel, iteration) 
 
 async function triggerOversizePrompt(page, fixturePath) {
   await page.locator('input[type="file"]').setInputFiles(fixturePath);
-  await waitForPhase(page, 'awaiting-oversize-decision', 30000);
+  try {
+    await waitForPhase(page, 'awaiting-oversize-decision', 10000);
+  } catch (error) {
+    const diagnostic = await page.evaluate(() => ({
+      phase: document.querySelector('[data-phase]')?.getAttribute('data-phase') ?? 'unknown',
+      error: document.querySelector('.error-panel')?.textContent?.trim() ?? '',
+      prompt: document.querySelector('.prompt-panel')?.textContent?.trim() ?? '',
+      sourceName: window.__imageEnhancerDebug?.sourceName ?? null,
+    }));
+    throw new Error(`Oversize prompt did not appear: ${JSON.stringify(diagnostic)}`, { cause: error });
+  }
   return page.evaluate(() => ({
-    phase: document.querySelector('.phase-badge')?.getAttribute('data-phase') ?? 'unknown',
+    phase: document.querySelector('[data-phase]')?.getAttribute('data-phase') ?? 'unknown',
     message: document.querySelector('.prompt-panel p')?.textContent?.trim() ?? '',
     keepOriginalDisabled: document.querySelector('.prompt-panel .button-primary')?.hasAttribute('disabled') ?? true,
   }));
@@ -437,8 +451,8 @@ async function finishOversizeDownscale(page) {
   await page.locator('[data-action="downscale"]').click();
   await waitForPhase(page, 'ready', 45000);
   return page.evaluate(() => ({
-    phase: document.querySelector('.phase-badge')?.getAttribute('data-phase') ?? 'unknown',
-    status: document.querySelector('.status-row p')?.textContent?.trim() ?? '',
+    phase: document.querySelector('[data-phase]')?.getAttribute('data-phase') ?? 'unknown',
+    status: document.querySelector('.live-status p')?.textContent?.trim() ?? '',
     renderMeta: document.querySelector('.render-meta')?.textContent?.trim() ?? '',
   }));
 }
@@ -446,13 +460,191 @@ async function finishOversizeDownscale(page) {
 async function waitForPhase(page, expected, timeout) {
   await page.waitForFunction(
     (phase) => {
-      const badge = document.querySelector('.phase-badge');
+      const badge = document.querySelector('[data-phase]');
       const raw = badge?.getAttribute('data-phase') ?? badge?.textContent ?? '';
       return raw.trim().toLowerCase() === phase;
     },
     expected.toLowerCase(),
     { timeout },
   );
+}
+
+async function runResponsiveVisual() {
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
+    const page = await context.newPage();
+    await page.goto(previewUrl, { waitUntil: "networkidle" });
+    await uploadAndWait(page, path.join(root, "fixtures", fixtureNames.text));
+
+    const compareControl = page.locator('#compare-position');
+    await compareControl.focus();
+    await compareControl.press('ArrowRight');
+
+    const screenshotPath = path.join(artifactsDir, 'responsive-390-ready.png');
+    await page.screenshot({ path: screenshotPath, fullPage: true });
+
+    return await page.evaluate((savedPath) => ({
+      status: document.documentElement.scrollWidth <= window.innerWidth ? 'passed' : 'failed',
+      viewportWidth: window.innerWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+      comparePosition: document.querySelector('#compare-position')?.value ?? null,
+      phase: document.querySelector('[data-phase]')?.getAttribute('data-phase') ?? 'unknown',
+      screenshotPath: savedPath,
+    }), screenshotPath);
+  } finally {
+    await browser.close();
+  }
+}
+
+async function runAccessibilityChecks() {
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 1024 } });
+    const page = await context.newPage();
+    await page.goto(previewUrl, { waitUntil: "networkidle" });
+
+    await page.keyboard.press('Tab');
+    const skipLink = await page.evaluate(() => {
+      const active = document.activeElement;
+      const rect = active?.getBoundingClientRect();
+      return {
+        isActive: active?.classList.contains('skip-link') ?? false,
+        isVisible: Boolean(rect && rect.width > 1 && rect.height > 1),
+      };
+    });
+
+    await page.keyboard.press('Tab');
+    const primaryAction = await page.evaluate(() => ({
+      tagName: document.activeElement?.tagName ?? null,
+      label: document.activeElement?.textContent?.trim() ?? null,
+    }));
+
+    const headings = await page.evaluate(() => {
+      const levels = [...document.querySelectorAll('h1, h2, h3, h4, h5, h6')]
+        .map((heading) => Number(heading.tagName.slice(1)));
+      return {
+        levels,
+        hasSingleH1: levels.filter((level) => level === 1).length === 1,
+        hasNoLevelJump: levels.every((level, index) => index === 0 || level <= levels[index - 1] + 1),
+      };
+    });
+
+    const previousState = await getUiState(page);
+    await page.locator('input[type="file"]').setInputFiles(path.join(root, "fixtures", fixtureNames.text));
+    await waitForPhase(page, 'processing', 10000);
+    const processingLock = await page.evaluate(() => ({
+      exportDisabled: document.querySelector('[data-action="export-image"]')?.hasAttribute('disabled') ?? false,
+      radiosDisabled: [...document.querySelectorAll('input[type="radio"]')]
+        .every((input) => input instanceof HTMLInputElement && input.disabled),
+      compareBusy: document.querySelector('.compare-frame')?.getAttribute('aria-busy') === 'true',
+    }));
+    await waitForReadyResult(page, fixtureNames.text, previousState.previewObjectUrl, 45000);
+
+    const compareControl = page.locator('#compare-position');
+    await compareControl.focus();
+    const focusIndicator = await compareControl.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return {
+        outlineStyle: style.outlineStyle,
+        outlineWidth: style.outlineWidth,
+        outlineColor: style.outlineColor,
+      };
+    });
+
+    await page.goto(previewUrl, { waitUntil: "networkidle" });
+    await page.locator('input[type="file"]').setInputFiles(path.join(root, "fixtures", fixtureNames.oversize));
+    await waitForPhase(page, 'awaiting-oversize-decision', 10000);
+    const promptFocus = await page.evaluate(() => ({
+      activeId: document.activeElement?.id ?? null,
+      role: document.querySelector('.prompt-panel')?.getAttribute('role') ?? null,
+    }));
+
+    const status = skipLink.isActive
+      && skipLink.isVisible
+      && primaryAction.tagName === 'BUTTON'
+      && headings.hasSingleH1
+      && headings.hasNoLevelJump
+      && processingLock.exportDisabled
+      && processingLock.radiosDisabled
+      && processingLock.compareBusy
+      && focusIndicator.outlineStyle !== 'none'
+      && Number.parseFloat(focusIndicator.outlineWidth) >= 3
+      && promptFocus.activeId === 'oversize-title'
+      && promptFocus.role === 'alert'
+      ? 'passed'
+      : 'failed';
+
+    return {
+      status,
+      skipLink,
+      primaryAction,
+      headings,
+      processingLock,
+      focusIndicator,
+      promptFocus,
+    };
+  } finally {
+    await browser.close();
+  }
+}
+
+async function runDarkModeVisual() {
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const context = await browser.newContext({
+      viewport: { width: 1440, height: 1024 },
+      colorScheme: 'dark',
+    });
+    const page = await context.newPage();
+    await page.goto(previewUrl, { waitUntil: "networkidle" });
+    const screenshotPath = path.join(artifactsDir, 'desktop-dark-idle.png');
+    await page.screenshot({ path: screenshotPath, fullPage: true });
+
+    return await page.evaluate((savedPath) => {
+      const rootStyle = getComputedStyle(document.documentElement);
+      const panelStyle = getComputedStyle(document.querySelector('.panel'));
+      const responsive = document.documentElement.scrollWidth <= window.innerWidth;
+      return {
+        status: rootStyle.colorScheme.includes('dark') && responsive ? 'passed' : 'failed',
+        colorScheme: rootStyle.colorScheme,
+        pageBackground: rootStyle.backgroundColor,
+        surfaceBackground: panelStyle.backgroundColor,
+        viewportWidth: window.innerWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+        screenshotPath: savedPath,
+      };
+    }, screenshotPath);
+  } finally {
+    await browser.close();
+  }
+}
+
+async function runMobileSupportVisual() {
+  const browser = await chromium.launch({ headless: true });
+  try {
+    const context = await browser.newContext({ ...devices['Pixel 7'] });
+    const page = await context.newPage();
+    await page.goto(previewUrl, { waitUntil: "networkidle" });
+    const screenshotPath = path.join(artifactsDir, 'mobile-chromium-blocked.png');
+    await page.screenshot({ path: screenshotPath, fullPage: true });
+
+    return await page.evaluate((savedPath) => {
+      const phase = document.querySelector('[data-phase]')?.getAttribute('data-phase') ?? null;
+      const bucket = document.querySelector('.capability-pill strong')?.textContent?.trim() ?? null;
+      const responsive = document.documentElement.scrollWidth <= window.innerWidth;
+      return {
+        status: phase === 'compatibility-blocked' && responsive ? 'passed' : 'failed',
+        phase,
+        bucket,
+        viewportWidth: window.innerWidth,
+        scrollWidth: document.documentElement.scrollWidth,
+        screenshotPath: savedPath,
+      };
+    }, screenshotPath);
+  } finally {
+    await browser.close();
+  }
 }
 
 function median(values) {

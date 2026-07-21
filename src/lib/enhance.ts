@@ -6,10 +6,9 @@ import {
   clampStrength,
   loadBitmapFromSource,
 } from "./image";
-import { runFourXSuperResolution } from "./srModel";
-
 interface EnhanceProcessOptions {
   usedWorker: boolean;
+  runSuperResolution: (source: ImageData) => Promise<ImageData>;
 }
 
 interface PixelBuffers {
@@ -42,6 +41,7 @@ export async function processImageRequest(
           renderEnhancedVariant(drawable, request.source.width, request.source.height, strength),
           outputSizing.width,
           outputSizing.height,
+          options.runSuperResolution,
         )
       : shouldUpscaleOutput
         ? upscaleEnhancedImageData(
@@ -159,8 +159,13 @@ export async function superResolveEnhancedImageData(
   source: ImageData,
   width: number,
   height: number,
+  runSuperResolution?: (source: ImageData) => Promise<ImageData>,
 ): Promise<ImageData> {
-  const upscaled = await runFourXSuperResolution(source);
+  if (!runSuperResolution) {
+    throw new Error("4x 업스케일은 Web Worker를 사용할 수 있는 환경에서만 실행할 수 있습니다.");
+  }
+
+  const upscaled = await runSuperResolution(source);
   if (upscaled.width === width && upscaled.height === height) {
     return upscaled;
   }
